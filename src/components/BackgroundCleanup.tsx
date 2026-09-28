@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import {
   SCAN_CLEAN_PHOTO_KEY,
@@ -51,6 +51,23 @@ export function BackgroundCleanup({
 
   const locked = plan === "basic";
 
+  const keep = useCallback(
+    (next: "before" | "after", cleaned?: string | null) => {
+      setChoice(next);
+      if (next === "after" && (cleaned || after)) {
+        const value = cleaned || after!;
+        sessionStorage.setItem(SCAN_CLEAN_PHOTO_KEY, value);
+        sessionStorage.setItem(SCAN_STORAGE_KEY, value);
+        onPhotoChange?.(value);
+        return;
+      }
+      sessionStorage.setItem(SCAN_STORAGE_KEY, before);
+      sessionStorage.removeItem(SCAN_CLEAN_PHOTO_KEY);
+      onPhotoChange?.(before);
+    },
+    [after, before, onPhotoChange],
+  );
+
   const runCleanup = useCallback(async () => {
     if (locked) return;
     setBusy(true);
@@ -69,7 +86,6 @@ export function BackgroundCleanup({
       };
       if (!response.ok || !json.imageDataUrl) {
         setNote(json.error || "Cleanup failed.");
-        setBusy(false);
         return;
       }
 
@@ -82,28 +98,13 @@ export function BackgroundCleanup({
         );
       }
       setAfter(cleaned);
-      setChoice("after");
-      sessionStorage.setItem(SCAN_CLEAN_PHOTO_KEY, cleaned);
-      sessionStorage.setItem(SCAN_STORAGE_KEY, cleaned);
-      onPhotoChange?.(cleaned);
+      keep("after", cleaned);
     } catch {
       setNote("Cleanup failed.");
     } finally {
       setBusy(false);
     }
-  }, [before, locked, onPhotoChange]);
-
-  useEffect(() => {
-    if (choice === "after" && after) {
-      sessionStorage.setItem(SCAN_STORAGE_KEY, after);
-      onPhotoChange?.(after);
-    }
-    if (choice === "before") {
-      sessionStorage.setItem(SCAN_STORAGE_KEY, before);
-      sessionStorage.removeItem(SCAN_CLEAN_PHOTO_KEY);
-      onPhotoChange?.(before);
-    }
-  }, [after, before, choice, onPhotoChange]);
+  }, [before, keep, locked]);
 
   if (locked) {
     return (
@@ -144,14 +145,14 @@ export function BackgroundCleanup({
             <button
               type="button"
               className={choice === "before" ? styles.active : undefined}
-              onClick={() => setChoice("before")}
+              onClick={() => keep("before")}
             >
               Keep original
             </button>
             <button
               type="button"
               className={choice === "after" ? styles.active : undefined}
-              onClick={() => setChoice("after")}
+              onClick={() => keep("after")}
             >
               Keep cleaned
             </button>

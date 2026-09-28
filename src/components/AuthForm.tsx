@@ -8,16 +8,18 @@ type Mode = "login" | "signup";
 
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function onSubmit(event: React.FormEvent) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError(null);
+
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") || "").trim();
+    const password = String(form.get("password") || "");
+    const name = String(form.get("name") || "").trim();
 
     const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/signup";
     const response = await fetch(endpoint, {
@@ -50,10 +52,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
         <label>
           Name
           <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            name="name"
             placeholder="Marino"
             autoComplete="name"
+            defaultValue=""
           />
         </label>
       )}
@@ -62,11 +64,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
         Email
         <input
           type="email"
+          name="email"
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           placeholder="you@email.com"
           autoComplete="email"
+          defaultValue=""
         />
       </label>
 
@@ -74,12 +76,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
         Password
         <input
           type="password"
+          name="password"
           required
           minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
           autoComplete={mode === "login" ? "current-password" : "new-password"}
+          defaultValue=""
         />
       </label>
 

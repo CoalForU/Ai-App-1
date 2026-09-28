@@ -159,7 +159,9 @@ export default function ResultsPage() {
     return () => {
       cancelled = true;
     };
-  }, [photo, router]);
+    // Identify once per results visit — photo cleanup must not re-scan.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   const sellThrough = useMemo(() => {
     if (!result) return null;

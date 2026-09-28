@@ -1,12 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { compressImageDataUrl } from "@/lib/image";
-import { SCAN_STORAGE_KEY } from "@/lib/types";
+import {
+  PLAN_LIMITS,
+  SCAN_STORAGE_KEY,
+  type PlanId,
+} from "@/lib/types";
 import styles from "./page.module.css";
 
 type CameraState = "idle" | "starting" | "live" | "blocked" | "unsupported";
+
+type MeState = {
+  authenticated: boolean;
+  name?: string;
+  plan?: PlanId;
+  used?: number;
+  limit?: number | null;
+  remaining?: number | null;
+};
 
 export default function ScanPage() {
   const router = useRouter();
@@ -17,10 +31,39 @@ export default function ScanPage() {
 
   const [cameraState, setCameraState] = useState<CameraState>("idle");
   const [isCapturing, setIsCapturing] = useState(false);
+  const [me, setMe] = useState<MeState>({ authenticated: false });
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    void fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then(
+        (json: {
+          user: null | { name: string; plan: PlanId };
+          usage: null | {
+            used: number;
+            limit: number | null;
+            remaining: number | null;
+          };
+        }) => {
+          if (!json.user) {
+            setMe({ authenticated: false });
+            return;
+          }
+          setMe({
+            authenticated: true,
+            name: json.user.name,
+            plan: json.user.plan,
+            used: json.usage?.used ?? 0,
+            limit: json.usage?.limit ?? PLAN_LIMITS.basic.scansPerMonth,
+            remaining: json.usage?.remaining ?? null,
+          });
+        },
+      );
   }, []);
 
   useEffect(() => {
@@ -60,7 +103,6 @@ export default function ScanPage() {
       }
     }
 
-    // Defer so the effect body itself does not synchronously setState.
     const timer = window.setTimeout(() => {
       void startCamera();
     }, 0);
@@ -74,12 +116,21 @@ export default function ScanPage() {
 
   const goToResults = useCallback(
     async (dataUrl: string) => {
+      if (!me.authenticated) {
+        router.push("/signup");
+        return;
+      }
+      if (me.limit != null && (me.remaining ?? 0) <= 0) {
+        router.push("/plans");
+        return;
+      }
+
       const compressed = await compressImageDataUrl(dataUrl);
       sessionStorage.setItem(SCAN_STORAGE_KEY, compressed);
       stopCamera();
       router.push("/results");
     },
-    [router, stopCamera],
+    [me, router, stopCamera],
   );
 
   const capturePhoto = useCallback(async () => {
@@ -124,6 +175,12 @@ export default function ScanPage() {
     [goToResults],
   );
 
+  const limitLabel = !me.authenticated
+    ? "Sign in to start scanning"
+    : me.limit == null
+      ? `${me.used ?? 0} scans this month · Unlimited`
+      : `${me.used ?? 0} / ${me.limit} scans this month`;
+
   return (
     <div className={styles.shell}>
       <header className={styles.topBar}>
@@ -131,10 +188,28 @@ export default function ScanPage() {
           <p className={styles.brand}>FlipScout</p>
           <p className={styles.tagline}>Scan. Price. List.</p>
         </div>
-        <a className={styles.plansLink} href="/plans">
-          Plans
-        </a>
+        <div className={styles.topLinks}>
+          <Link className={styles.plansLink} href="/plans">
+            Plans
+          </Link>
+          {me.authenticated ? (
+            <Link className={styles.plansLink} href="/account">
+              Account
+            </Link>
+          ) : (
+            <Link className={styles.plansLink} href="/login">
+              Sign in
+            </Link>
+          )}
+        </div>
       </header>
+
+      {!me.authenticated && (
+        <div className={styles.authBanner}>
+          <p>Create a free Basic account to scan (~7 / month).</p>
+          <Link href="/signup">Sign up</Link>
+        </div>
+      )}
 
       <main className={styles.stage}>
         <div className={styles.viewfinder}>
@@ -175,12 +250,19 @@ export default function ScanPage() {
           Point at the item. We&apos;ll ID it and show market prices on the next
           screen.
         </p>
+        <p className={styles.usage}>{limitLabel}</p>
 
         <div className={styles.controls}>
           <button
             type="button"
             className={styles.uploadBtn}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => {
+              if (!me.authenticated) {
+                router.push("/signup");
+                return;
+              }
+              fileInputRef.current?.click();
+            }}
             disabled={isCapturing}
           >
             Upload

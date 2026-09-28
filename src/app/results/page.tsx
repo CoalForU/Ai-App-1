@@ -3,8 +3,15 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { DemandLabel, PriceWindow, ScanResult } from "@/lib/types";
-import { SCAN_STORAGE_KEY } from "@/lib/types";
+import { BackgroundCleanup } from "@/components/BackgroundCleanup";
+import type {
+  DemandLabel,
+  ListingDraft,
+  PlanId,
+  PriceWindow,
+  ScanResult,
+} from "@/lib/types";
+import { SCAN_RESULT_KEY, SCAN_STORAGE_KEY } from "@/lib/types";
 import styles from "./results.module.css";
 
 function formatMoney(value: number) {
@@ -82,11 +89,23 @@ function PriceHistoryGraph({
 
 export default function ResultsPage() {
   const router = useRouter();
-  const [photo] = useState<string | null>(readStoredPhoto);
+  const [photo, setPhoto] = useState<string | null>(readStoredPhoto);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [windowDays, setWindowDays] = useState<PriceWindow>(30);
+  const [plan, setPlan] = useState<PlanId>("basic");
+  const [listing, setListing] = useState<ListingDraft | null>(null);
+  const [listingBusy, setListingBusy] = useState(false);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((json: { user: null | { plan: PlanId } }) => {
+        if (json.user?.plan) setPlan(json.user.plan);
+      });
+  }, []);
 
   useEffect(() => {
     if (!photo) {
@@ -101,17 +120,36 @@ export default function ResultsPage() {
         const response = await fetch("/api/identify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ stub: true }),
+          body: JSON.stringify({ imageDataUrl: photo }),
         });
-        if (!response.ok) throw new Error("Identify failed");
-        const data = (await response.json()) as ScanResult;
+        const data = (await response.json()) as {
+          result?: ScanResult;
+          error?: string;
+        };
+
+        if (response.status === 401) {
+          router.replace("/signup");
+          return;
+        }
+        if (response.status === 402) {
+          router.replace("/plans");
+          return;
+        }
+        if (!response.ok || !data.result) {
+          throw new Error(data.error || "Identify failed");
+        }
         if (!cancelled) {
-          setResult(data);
+          setResult(data.result);
+          sessionStorage.setItem(SCAN_RESULT_KEY, JSON.stringify(data.result));
           setLoading(false);
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
-          setError("Could not identify this item. Try another photo.");
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Could not identify this item. Try another photo.",
+          );
           setLoading(false);
         }
       }
@@ -132,6 +170,35 @@ export default function ResultsPage() {
     if (!result) return [];
     return windowDays === 30 ? result.history30 : result.history60;
   }, [result, windowDays]);
+
+  async function generateListing() {
+    if (!result) return;
+    setListingBusy(true);
+    try {
+      const response = await fetch("/api/listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ result }),
+      });
+      const json = (await response.json()) as {
+        listing?: ListingDraft;
+        error?: string;
+      };
+      if (!response.ok || !json.listing) {
+        setError(json.error || "Could not generate listing.");
+      } else {
+        setListing(json.listing);
+      }
+    } finally {
+      setListingBusy(false);
+    }
+  }
+
+  async function copyField(label: string, value: string) {
+    await navigator.clipboard.writeText(value);
+    setCopied(label);
+    window.setTimeout(() => setCopied(null), 1200);
+  }
 
   if (!photo) {
     return (
@@ -171,7 +238,7 @@ export default function ResultsPage() {
         </section>
       )}
 
-      {!loading && error && (
+      {!loading && error && !result && (
         <section className={styles.errorPanel}>
           <p>{error}</p>
           <Link href="/" className={styles.primaryBtn}>
@@ -193,6 +260,9 @@ export default function ResultsPage() {
               </p>
               <h1 className={styles.title}>{result.name}</h1>
               <p className={styles.condition}>{result.condition}</p>
+              <p className={styles.pricingMode}>
+                Pricing: {result.pricingMode === "live" ? "Live eBay" : "Stub comps"}
+              </p>
             </div>
           </section>
 
@@ -249,9 +319,6 @@ export default function ResultsPage() {
               </div>
             </div>
             <PriceHistoryGraph points={history} windowDays={windowDays} />
-            <p className={styles.chartNote}>
-              Stub data for Phase 1 — real marketplace history comes in Phase 2.
-            </p>
           </section>
 
           <section className={styles.section}>
@@ -263,7 +330,12 @@ export default function ResultsPage() {
                     className={`${styles.sourceDot} ${styles[source.source]}`}
                   />
                   <div>
-                    <p className={styles.sourceLabel}>{source.label}</p>
+                    <p className={styles.sourceLabel}>
+                      {source.label}
+                      {!source.live && (
+                        <span className={styles.stubTag}> stub</span>
+                      )}
+                    </p>
                     <p className={styles.sourceRange}>
                       {formatMoney(source.low)} – {formatMoney(source.high)}
                     </p>
@@ -297,14 +369,82 @@ export default function ResultsPage() {
             </div>
           </section>
 
+          <BackgroundCleanup
+            photo={photo}
+            plan={plan}
+            onPhotoChange={setPhoto}
+          />
+
           <section className={styles.ctaSection}>
-            <button type="button" className={styles.primaryBtn} disabled>
-              Generate listing
+            <button
+              type="button"
+              className={styles.primaryBtn}
+              onClick={() => void generateListing()}
+              disabled={listingBusy}
+            >
+              {listingBusy ? "Writing listing…" : "Generate listing"}
             </button>
-            <p className={styles.ctaNote}>
-              Listing generation lands in Phase 3.
-            </p>
           </section>
+
+          {listing && (
+            <section className={styles.section}>
+              <h2>Listing draft</h2>
+              <label className={styles.field}>
+                Title
+                <div className={styles.fieldRow}>
+                  <input
+                    value={listing.title}
+                    onChange={(e) =>
+                      setListing({ ...listing, title: e.target.value })
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void copyField("title", listing.title)}
+                  >
+                    {copied === "title" ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              </label>
+              <label className={styles.field}>
+                Category
+                <div className={styles.fieldRow}>
+                  <input
+                    value={listing.category}
+                    onChange={(e) =>
+                      setListing({ ...listing, category: e.target.value })
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void copyField("category", listing.category)}
+                  >
+                    {copied === "category" ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              </label>
+              <label className={styles.field}>
+                Description
+                <div className={styles.fieldRow}>
+                  <textarea
+                    rows={6}
+                    value={listing.description}
+                    onChange={(e) =>
+                      setListing({ ...listing, description: e.target.value })
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void copyField("description", listing.description)
+                    }
+                  >
+                    {copied === "description" ? "Copied" : "Copy"}
+                  </button>
+                </div>
+              </label>
+            </section>
+          )}
         </main>
       )}
     </div>

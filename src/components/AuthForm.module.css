@@ -1,0 +1,59 @@
+.form {
+  width: min(100%, 420px);
+  margin-inline: auto;
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 4px);
+  background: rgba(255, 255, 255, 0.03);
+  animation: fade-up 420ms ease-out;
+}
+
+.form h1 {
+  font-size: 1.7rem;
+  letter-spacing: -0.04em;
+}
+
+.sub {
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 0.3rem;
+}
+
+.form label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.form input {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+}
+
+.form button {
+  margin-top: 0.35rem;
+  padding: 0.9rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: var(--danger);
+  font-size: 0.92rem;
+}

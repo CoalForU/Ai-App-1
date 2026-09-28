@@ -329,6 +329,54 @@
   font-size: 0.9rem;
 }
 
+.pricingMode,
+.stubTag {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.stubTag {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+  align-items: start;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+
+.fieldRow button {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.65rem 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .ctaSection {
   display: grid;
   gap: 0.65rem;

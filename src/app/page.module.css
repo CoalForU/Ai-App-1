@@ -27,6 +27,13 @@
   font-size: 0.92rem;
 }
 
+.topLinks {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .plansLink {
   padding: 0.55rem 0.9rem;
   border: 1px solid var(--line);
@@ -39,6 +46,34 @@
 .plansLink:hover {
   color: var(--text);
   border-color: rgba(182, 242, 74, 0.45);
+}
+
+.authBanner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid rgba(182, 242, 74, 0.35);
+  background: rgba(182, 242, 74, 0.08);
+}
+
+.authBanner a {
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.usage {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-top: -0.35rem;
 }
 
 .stage {

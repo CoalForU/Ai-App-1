@@ -139,15 +139,24 @@
   border: 0;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
-  color: var(--text-muted);
+  color: var(--text);
   font-weight: 600;
+  cursor: pointer;
+}
+
+.cta:disabled {
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .featured .cta {
   background: var(--accent);
   color: var(--accent-ink);
-  opacity: 0.7;
+}
+
+.message {
+  margin-top: 0.75rem;
+  color: var(--accent);
 }
 
 @media (max-width: 900px) {

@@ -1,0 +1,363 @@
+.shell {
+  min-height: 100dvh;
+  max-width: 720px;
+  margin-inline: auto;
+  padding: 1rem 1.1rem 2.5rem;
+  animation: fade-up 420ms ease-out;
+}
+
+.topBar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.backLink,
+.plansLink {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.plansLink {
+  justify-self: end;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.loadingPanel,
+.errorPanel,
+.content {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.photoWrap {
+  overflow: hidden;
+  border-radius: calc(var(--radius) + 4px);
+  background: var(--bg-soft);
+  aspect-ratio: 4 / 3;
+  box-shadow: var(--shadow);
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  margin-inline: auto;
+  border-radius: 50%;
+  border: 3px solid rgba(238, 246, 239, 0.2);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+.loadingCopy {
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.skeletonStack {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.skeleton,
+.skeletonShort {
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(182, 242, 74, 0.16),
+    rgba(255, 255, 255, 0.04)
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.skeletonShort {
+  width: 55%;
+}
+
+.errorPanel {
+  place-items: center;
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.hero {
+  display: grid;
+  gap: 1rem;
+}
+
+.heroCopy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.meta,
+.sectionLabel,
+.chartNote,
+.sectionSupport,
+.ctaNote,
+.condition {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.title {
+  font-size: clamp(1.55rem, 4.5vw, 2rem);
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.priceBlock,
+.section {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.priceHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.listAt {
+  margin-top: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 7vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  color: var(--accent);
+}
+
+.range {
+  margin-top: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.demandRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.daysToSell {
+  font-size: 1.05rem;
+}
+
+.daysToSell strong {
+  color: var(--text);
+}
+
+.demand {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  animation: fade-up 500ms ease-out;
+}
+
+.demandHot {
+  background: rgba(255, 107, 61, 0.18);
+  color: var(--hot);
+}
+
+.demandSteady {
+  background: rgba(240, 194, 75, 0.16);
+  color: var(--steady);
+}
+
+.demandSlow {
+  background: rgba(126, 149, 168, 0.18);
+  color: var(--slow);
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.section h2 {
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.toggle {
+  display: inline-flex;
+  padding: 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.toggle button {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.toggleActive {
+  background: var(--accent) !important;
+  color: var(--accent-ink) !important;
+  font-weight: 600;
+}
+
+.chart {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  background: linear-gradient(
+    180deg,
+    rgba(182, 242, 74, 0.05),
+    rgba(255, 255, 255, 0.01)
+  );
+  border: 1px solid var(--line);
+}
+
+.sourceList {
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.sourceItem {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.85rem 0.95rem;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--line);
+}
+
+.sourceDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.ebay {
+  background: var(--ebay);
+}
+
+.marketplace {
+  background: var(--marketplace);
+}
+
+.stockx {
+  background: var(--stockx);
+}
+
+.sourceLabel {
+  font-weight: 600;
+}
+
+.sourceRange,
+.sourceMedian {
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+}
+
+.sourceMedian {
+  color: var(--text-muted);
+}
+
+.optionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.optionCard {
+  padding: 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: linear-gradient(
+    160deg,
+    rgba(182, 242, 74, 0.08),
+    rgba(255, 255, 255, 0.02)
+  );
+}
+
+.optionLabel {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.optionPrice {
+  font-family: var(--font-mono);
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.optionDays {
+  margin-top: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.ctaSection {
+  display: grid;
+  gap: 0.65rem;
+  padding-top: 0.5rem;
+}
+
+.primaryBtn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0.95rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.primaryBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .optionGrid {
+    grid-template-columns: 1fr;
+  }
+}

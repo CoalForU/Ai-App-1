@@ -185,7 +185,7 @@ export default function ScanPage() {
     <div className={styles.shell}>
       <header className={styles.topBar}>
         <div>
-          <p className={styles.brand}>FlipScout</p>
+          <p className={styles.brand}>Resellr</p>
           <p className={styles.tagline}>Scan. Price. List.</p>
         </div>
         <div className={styles.topLinks}>

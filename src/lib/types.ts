@@ -76,9 +76,9 @@ export interface ScanMonth {
   count: number;
 }
 
-export const SCAN_STORAGE_KEY = "flipscout-scan-photo";
-export const SCAN_RESULT_KEY = "flipscout-scan-result";
-export const SCAN_CLEAN_PHOTO_KEY = "flipscout-scan-clean-photo";
+export const SCAN_STORAGE_KEY = "resellr-scan-photo";
+export const SCAN_RESULT_KEY = "resellr-scan-result";
+export const SCAN_CLEAN_PHOTO_KEY = "resellr-scan-clean-photo";
 
 export const PLAN_LIMITS: Record<
   PlanId,

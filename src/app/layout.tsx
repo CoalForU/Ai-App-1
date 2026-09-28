@@ -15,7 +15,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FlipScout — Scan. Price. List.",
+  title: "Resellr — Scan. Price. List.",
   description:
     "Photograph a thrift find, see marketplace pricing and sell-through, and draft a listing.",
 };

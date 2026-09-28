@@ -216,7 +216,7 @@ export default function ResultsPage() {
         <Link href="/" className={styles.backLink}>
           ← New scan
         </Link>
-        <p className={styles.brand}>FlipScout</p>
+        <p className={styles.brand}>Resellr</p>
         <Link href="/plans" className={styles.plansLink}>
           Plans
         </Link>

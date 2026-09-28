@@ -6,7 +6,7 @@ export default function LoginPage() {
   return (
     <div className={styles.shell}>
       <header className={styles.top}>
-        <Link href="/">← FlipScout</Link>
+        <Link href="/">← Resellr</Link>
         <Link href="/signup">Need an account?</Link>
       </header>
       <AuthForm mode="login" />

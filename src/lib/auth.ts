@@ -6,10 +6,10 @@ import { findUserByEmail, findUserById, upsertUser } from "./db";
 import type { PlanId, UserRecord } from "./types";
 import { PLAN_LIMITS } from "./types";
 
-const COOKIE_NAME = "flipscout_session";
+const COOKIE_NAME = "resellr_session";
 
 function authSecret() {
-  const secret = process.env.AUTH_SECRET || "flipscout-dev-secret-change-me";
+  const secret = process.env.AUTH_SECRET || "resellr-dev-secret-change-me";
   return new TextEncoder().encode(secret);
 }
 

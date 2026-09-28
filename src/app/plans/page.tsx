@@ -119,7 +119,7 @@ export default function PlansPage() {
         <Link href="/" className={styles.backLink}>
           ← Back to scan
         </Link>
-        <p className={styles.brand}>FlipScout</p>
+        <p className={styles.brand}>Resellr</p>
       </header>
 
       <main className={styles.main}>

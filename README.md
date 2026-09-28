@@ -1,4 +1,4 @@
-# FlipScout (Ai-App-1)
+# Resellr (Ai-App-1)
 
 Reseller tool: photograph an item, see marketplace pricing + sell-through, draft a listing.
 

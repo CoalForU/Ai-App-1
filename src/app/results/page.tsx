@@ -21,6 +21,11 @@ function demandClass(demand: DemandLabel) {
   return styles.demandSlow;
 }
 
+function readStoredPhoto() {
+  if (typeof window === "undefined") return null;
+  return sessionStorage.getItem(SCAN_STORAGE_KEY);
+}
+
 function PriceHistoryGraph({
   points,
   windowDays,
@@ -38,8 +43,7 @@ function PriceHistoryGraph({
   const max = Math.max(...prices) + 4;
 
   const coords = points.map((point) => {
-    const x =
-      padX + (point.day / windowDays) * (width - padX * 2);
+    const x = padX + (point.day / windowDays) * (width - padX * 2);
     const y =
       height -
       padY -
@@ -78,19 +82,17 @@ function PriceHistoryGraph({
 
 export default function ResultsPage() {
   const router = useRouter();
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photo] = useState<string | null>(readStoredPhoto);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [windowDays, setWindowDays] = useState<PriceWindow>(30);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(SCAN_STORAGE_KEY);
-    if (!stored) {
+    if (!photo) {
       router.replace("/");
       return;
     }
-    setPhoto(stored);
 
     let cancelled = false;
 
@@ -119,7 +121,7 @@ export default function ResultsPage() {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [photo, router]);
 
   const sellThrough = useMemo(() => {
     if (!result) return null;
@@ -158,7 +160,9 @@ export default function ResultsPage() {
             <img src={photo} alt="Scanned item" className={styles.photo} />
           </div>
           <div className={styles.spinner} />
-          <p className={styles.loadingCopy}>Identifying item and pulling market data…</p>
+          <p className={styles.loadingCopy}>
+            Identifying item and pulling market data…
+          </p>
           <div className={styles.skeletonStack}>
             <div className={styles.skeleton} />
             <div className={styles.skeleton} />
@@ -201,7 +205,8 @@ export default function ResultsPage() {
               <div className={styles.rangeBox}>
                 <p className={styles.sectionLabel}>Market range</p>
                 <p className={styles.range}>
-                  {formatMoney(result.priceLow)} – {formatMoney(result.priceHigh)}
+                  {formatMoney(result.priceLow)} –{" "}
+                  {formatMoney(result.priceHigh)}
                 </p>
               </div>
             </div>
@@ -211,7 +216,9 @@ export default function ResultsPage() {
                 Typically sells in{" "}
                 <strong>{sellThrough.daysToSell} days</strong>
               </p>
-              <span className={`${styles.demand} ${demandClass(sellThrough.demand)}`}>
+              <span
+                className={`${styles.demand} ${demandClass(sellThrough.demand)}`}
+              >
                 {sellThrough.demand}
               </span>
             </div>
@@ -220,7 +227,11 @@ export default function ResultsPage() {
           <section className={styles.section}>
             <div className={styles.sectionHead}>
               <h2>Price history</h2>
-              <div className={styles.toggle} role="group" aria-label="History window">
+              <div
+                className={styles.toggle}
+                role="group"
+                aria-label="History window"
+              >
                 <button
                   type="button"
                   className={windowDays === 30 ? styles.toggleActive : undefined}
@@ -248,7 +259,9 @@ export default function ResultsPage() {
             <ul className={styles.sourceList}>
               {result.sources.map((source) => (
                 <li key={source.source} className={styles.sourceItem}>
-                  <span className={`${styles.sourceDot} ${styles[source.source]}`} />
+                  <span
+                    className={`${styles.sourceDot} ${styles[source.source]}`}
+                  />
                   <div>
                     <p className={styles.sourceLabel}>{source.label}</p>
                     <p className={styles.sourceRange}>
@@ -272,7 +285,9 @@ export default function ResultsPage() {
               {sellThrough.options.map((option) => (
                 <article key={option.label} className={styles.optionCard}>
                   <p className={styles.optionLabel}>{option.label}</p>
-                  <p className={styles.optionPrice}>{formatMoney(option.price)}</p>
+                  <p className={styles.optionPrice}>
+                    {formatMoney(option.price)}
+                  </p>
                   <p className={styles.optionDays}>
                     Sells in about {option.daysToSell}{" "}
                     {option.daysToSell === 1 ? "day" : "days"}
@@ -286,7 +301,9 @@ export default function ResultsPage() {
             <button type="button" className={styles.primaryBtn} disabled>
               Generate listing
             </button>
-            <p className={styles.ctaNote}>Listing generation lands in Phase 3.</p>
+            <p className={styles.ctaNote}>
+              Listing generation lands in Phase 3.
+            </p>
           </section>
         </main>
       )}

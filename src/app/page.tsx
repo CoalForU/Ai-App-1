@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { compressImageDataUrl } from "@/lib/image";
 import { SCAN_STORAGE_KEY } from "@/lib/types";
 import styles from "./page.module.css";
 
@@ -22,41 +23,59 @@ export default function ScanPage() {
     streamRef.current = null;
   }, []);
 
-  const startCamera = useCallback(async () => {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setCameraState("unsupported");
-      return;
-    }
-
-    setCameraState("starting");
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: "environment" },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-        audio: false,
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setCameraState("live");
-    } catch {
-      setCameraState("blocked");
-    }
-  }, []);
-
   useEffect(() => {
-    void startCamera();
-    return () => stopCamera();
-  }, [startCamera, stopCamera]);
+    let cancelled = false;
+
+    async function startCamera() {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        if (!cancelled) setCameraState("unsupported");
+        return;
+      }
+
+      if (!cancelled) setCameraState("starting");
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+          audio: false,
+        });
+
+        if (cancelled) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
+        if (!cancelled) setCameraState("live");
+      } catch {
+        if (!cancelled) setCameraState("blocked");
+      }
+    }
+
+    // Defer so the effect body itself does not synchronously setState.
+    const timer = window.setTimeout(() => {
+      void startCamera();
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+      stopCamera();
+    };
+  }, [stopCamera]);
 
   const goToResults = useCallback(
-    (dataUrl: string) => {
-      sessionStorage.setItem(SCAN_STORAGE_KEY, dataUrl);
+    async (dataUrl: string) => {
+      const compressed = await compressImageDataUrl(dataUrl);
+      sessionStorage.setItem(SCAN_STORAGE_KEY, compressed);
       stopCamera();
       router.push("/results");
     },
@@ -78,7 +97,11 @@ export default function ScanPage() {
     }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-    goToResults(dataUrl);
+    try {
+      await goToResults(dataUrl);
+    } catch {
+      setIsCapturing(false);
+    }
   }, [cameraState, goToResults, isCapturing]);
 
   const onFileChange = useCallback(
@@ -89,11 +112,11 @@ export default function ScanPage() {
       setIsCapturing(true);
       const reader = new FileReader();
       reader.onload = () => {
-        if (typeof reader.result === "string") {
-          goToResults(reader.result);
-        } else {
+        if (typeof reader.result !== "string") {
           setIsCapturing(false);
+          return;
         }
+        void goToResults(reader.result).catch(() => setIsCapturing(false));
       };
       reader.onerror = () => setIsCapturing(false);
       reader.readAsDataURL(file);

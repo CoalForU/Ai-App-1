@@ -5,15 +5,17 @@ import styles from "./ThemeToggle.module.css";
 
 export function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
   return (
     <button
       type="button"
       className={styles.toggle}
       onClick={toggleTheme}
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-      title={theme === "dark" ? "Light mode" : "Dark mode"}
+      aria-label={isDark ? "Switch to light mode (white background)" : "Switch to dark mode (black background)"}
+      title={isDark ? "Light mode" : "Dark mode"}
+      data-theme-current={theme}
     >
-      {theme === "dark" ? "Light" : "Dark"}
+      {isDark ? "Light" : "Dark"}
     </button>
   );
 }

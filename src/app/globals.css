@@ -1,54 +1,56 @@
+/* Dark mode: black background, blue accents (replaces former green). */
 :root,
 html[data-theme="dark"] {
-  --bg: #070b14;
-  --bg-elevated: #101827;
-  --bg-soft: #162033;
-  --line: rgba(210, 225, 255, 0.12);
-  --text: #eef3ff;
-  --text-muted: #8b9bb8;
+  --bg: #000000;
+  --bg-elevated: #111111;
+  --bg-soft: #1a1a1a;
+  --line: rgba(255, 255, 255, 0.12);
+  --text: #f5f7fa;
+  --text-muted: #9aa3b2;
   --accent: #3b82f6;
-  --accent-ink: #041027;
-  --accent-soft: rgba(59, 130, 246, 0.14);
-  --accent-border: rgba(59, 130, 246, 0.4);
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(59, 130, 246, 0.16);
+  --accent-border: rgba(59, 130, 246, 0.45);
   --accent-glow: rgba(59, 130, 246, 0.35);
   --hot: #ff6b3d;
   --steady: #f0c24b;
   --slow: #7e95a8;
-  --ebay: #86efac;
+  --ebay: #60a5fa;
   --marketplace: #93c5fd;
   --stockx: #f9a8d4;
   --danger: #ff5c5c;
   --radius: 18px;
-  --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
   --font-sans: var(--font-sora), "Segoe UI", sans-serif;
   --font-mono: var(--font-mono), ui-monospace, monospace;
-  --bg-glow-1: rgba(59, 130, 246, 0.16);
-  --bg-glow-2: rgba(96, 165, 250, 0.08);
+  --bg-glow-1: rgba(59, 130, 246, 0.14);
+  --bg-glow-2: rgba(37, 99, 235, 0.08);
   color-scheme: dark;
 }
 
+/* Light mode: white background, same blue accents. */
 html[data-theme="light"] {
-  --bg: #f4f7fc;
+  --bg: #ffffff;
   --bg-elevated: #ffffff;
-  --bg-soft: #e8eef8;
-  --line: rgba(15, 35, 70, 0.1);
+  --bg-soft: #f3f4f6;
+  --line: rgba(15, 23, 42, 0.12);
   --text: #0f172a;
-  --text-muted: #5b6b86;
+  --text-muted: #5b6475;
   --accent: #2563eb;
   --accent-ink: #ffffff;
   --accent-soft: rgba(37, 99, 235, 0.1);
   --accent-border: rgba(37, 99, 235, 0.35);
-  --accent-glow: rgba(37, 99, 235, 0.28);
+  --accent-glow: rgba(37, 99, 235, 0.22);
   --hot: #e85d2e;
   --steady: #c99412;
   --slow: #5f7388;
-  --ebay: #059669;
+  --ebay: #2563eb;
   --marketplace: #2563eb;
   --stockx: #db2777;
   --danger: #dc2626;
-  --shadow: 0 18px 40px rgba(15, 35, 70, 0.1);
-  --bg-glow-1: rgba(37, 99, 235, 0.12);
-  --bg-glow-2: rgba(59, 130, 246, 0.08);
+  --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  --bg-glow-1: rgba(37, 99, 235, 0.08);
+  --bg-glow-2: rgba(59, 130, 246, 0.05);
   color-scheme: light;
 }
 

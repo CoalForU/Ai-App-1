@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { PLAN_LIMITS, type PlanId } from "@/lib/types";
 import styles from "./plans.module.css";
 
@@ -17,7 +18,7 @@ const plans = [
     perks: [
       { label: "~7 scans / month", included: true },
       { label: "Sell-through data", included: true },
-      { label: "Listing generation", included: true },
+      { label: "Live auctions", included: true },
       { label: "Background removal", included: false },
       { label: "Priority support", included: false },
       { label: "Custom notifications", included: false },
@@ -35,7 +36,7 @@ const plans = [
     perks: [
       { label: "~25 scans / month", included: true },
       { label: "Sell-through data", included: true },
-      { label: "Listing generation", included: true },
+      { label: "Live auctions", included: true },
       { label: "Background removal", included: true },
       { label: "Priority support", included: true },
       { label: "Custom notifications", included: true },
@@ -53,7 +54,7 @@ const plans = [
     perks: [
       { label: "Unlimited scans", included: true },
       { label: "Sell-through data", included: true },
-      { label: "Listing generation", included: true },
+      { label: "Live auctions", included: true },
       { label: "Background removal", included: true },
       { label: "Priority support", included: true },
       { label: "Custom notifications", included: true },
@@ -120,6 +121,10 @@ export default function PlansPage() {
           ← Back to scan
         </Link>
         <p className={styles.brand}>Resellr</p>
+        <div className={styles.topRight}>
+          <ThemeToggle />
+          <Link href="/auctions">Auctions</Link>
+        </div>
       </header>
 
       <main className={styles.main}>

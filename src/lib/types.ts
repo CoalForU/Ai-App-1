@@ -53,10 +53,37 @@ export interface ScanResult extends IdentifiedItem {
   pricingMode: "live" | "stub";
 }
 
-export interface ListingDraft {
+export type AuctionStatus = "live" | "ended";
+
+export interface Bid {
+  id: string;
+  auctionId: string;
+  bidderId: string;
+  bidderName: string;
+  amount: number;
+  createdAt: string;
+}
+
+export interface Auction {
+  id: string;
+  sellerId: string;
+  sellerName: string;
   title: string;
   description: string;
   category: string;
+  condition: string;
+  photoDataUrl: string;
+  startingBid: number;
+  reservePrice: number | null;
+  currentBid: number;
+  currentBidderId: string | null;
+  currentBidderName: string | null;
+  bidCount: number;
+  status: AuctionStatus;
+  endsAt: string;
+  createdAt: string;
+  winnerId: string | null;
+  winnerName: string | null;
 }
 
 export interface UserRecord {
@@ -86,6 +113,7 @@ export const PLAN_LIMITS: Record<
     name: string;
     priceMonthly: number;
     scansPerMonth: number | null;
+    liveAuctions: boolean;
     backgroundRemoval: boolean;
     prioritySupport: boolean;
     customNotifications: boolean;
@@ -97,6 +125,7 @@ export const PLAN_LIMITS: Record<
     name: "Basic",
     priceMonthly: 0,
     scansPerMonth: 7,
+    liveAuctions: true,
     backgroundRemoval: false,
     prioritySupport: false,
     customNotifications: false,
@@ -107,6 +136,7 @@ export const PLAN_LIMITS: Record<
     name: "Pro",
     priceMonthly: 15,
     scansPerMonth: 25,
+    liveAuctions: true,
     backgroundRemoval: true,
     prioritySupport: true,
     customNotifications: true,
@@ -117,6 +147,7 @@ export const PLAN_LIMITS: Record<
     name: "Ultimate",
     priceMonthly: 35,
     scansPerMonth: null,
+    liveAuctions: true,
     backgroundRemoval: true,
     prioritySupport: true,
     customNotifications: true,
@@ -124,3 +155,10 @@ export const PLAN_LIMITS: Record<
     marketData: true,
   },
 };
+
+export function minNextBid(currentBid: number, startingBid: number) {
+  const base = Math.max(currentBid, startingBid);
+  if (currentBid <= 0) return startingBid;
+  const bump = Math.max(1, Math.round(base * 0.05));
+  return base + bump;
+}

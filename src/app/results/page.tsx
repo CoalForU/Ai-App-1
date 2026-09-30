@@ -4,13 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BackgroundCleanup } from "@/components/BackgroundCleanup";
-import type {
-  DemandLabel,
-  ListingDraft,
-  PlanId,
-  PriceWindow,
-  ScanResult,
-} from "@/lib/types";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import type { DemandLabel, PlanId, PriceWindow, ScanResult } from "@/lib/types";
 import { SCAN_RESULT_KEY, SCAN_STORAGE_KEY } from "@/lib/types";
 import styles from "./results.module.css";
 
@@ -70,8 +65,8 @@ function PriceHistoryGraph({
     >
       <defs>
         <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(182, 242, 74, 0.35)" />
-          <stop offset="100%" stopColor="rgba(182, 242, 74, 0)" />
+          <stop offset="0%" stopColor="var(--accent-glow)" />
+          <stop offset="100%" stopColor="transparent" />
         </linearGradient>
       </defs>
       <polygon points={area} fill="url(#areaFill)" />
@@ -95,9 +90,11 @@ export default function ResultsPage() {
   const [loading, setLoading] = useState(true);
   const [windowDays, setWindowDays] = useState<PriceWindow>(30);
   const [plan, setPlan] = useState<PlanId>("basic");
-  const [listing, setListing] = useState<ListingDraft | null>(null);
-  const [listingBusy, setListingBusy] = useState(false);
-  const [copied, setCopied] = useState<string | null>(null);
+  const [startingBid, setStartingBid] = useState("");
+  const [reservePrice, setReservePrice] = useState("");
+  const [durationHours, setDurationHours] = useState("24");
+  const [auctionBusy, setAuctionBusy] = useState(false);
+  const [auctionError, setAuctionError] = useState<string | null>(null);
 
   useEffect(() => {
     void fetch("/api/auth/me")
@@ -141,6 +138,7 @@ export default function ResultsPage() {
         if (!cancelled) {
           setResult(data.result);
           sessionStorage.setItem(SCAN_RESULT_KEY, JSON.stringify(data.result));
+          setStartingBid(String(data.result.listAt));
           setLoading(false);
         }
       } catch (err) {
@@ -163,6 +161,12 @@ export default function ResultsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
+  useEffect(() => {
+    if (!photo) {
+      router.replace("/");
+    }
+  }, [photo, router]);
+
   const sellThrough = useMemo(() => {
     if (!result) return null;
     return windowDays === 30 ? result.sellThrough30 : result.sellThrough60;
@@ -173,33 +177,38 @@ export default function ResultsPage() {
     return windowDays === 30 ? result.history30 : result.history60;
   }, [result, windowDays]);
 
-  async function generateListing() {
-    if (!result) return;
-    setListingBusy(true);
-    try {
-      const response = await fetch("/api/listing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ result }),
-      });
-      const json = (await response.json()) as {
-        listing?: ListingDraft;
-        error?: string;
-      };
-      if (!response.ok || !json.listing) {
-        setError(json.error || "Could not generate listing.");
-      } else {
-        setListing(json.listing);
-      }
-    } finally {
-      setListingBusy(false);
+  async function startAuction() {
+    if (!result || !photo) return;
+    setAuctionBusy(true);
+    setAuctionError(null);
+    const response = await fetch("/api/auctions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: result.name,
+        description: `${result.brand} · ${result.category}. ${result.condition}`,
+        category: result.category,
+        condition: result.condition,
+        photoDataUrl: photo,
+        startingBid: Number(startingBid),
+        reservePrice: reservePrice ? Number(reservePrice) : null,
+        durationHours: Number(durationHours),
+      }),
+    });
+    const json = (await response.json()) as {
+      auction?: { id: string };
+      error?: string;
+    };
+    setAuctionBusy(false);
+    if (response.status === 401) {
+      router.push("/login");
+      return;
     }
-  }
-
-  async function copyField(label: string, value: string) {
-    await navigator.clipboard.writeText(value);
-    setCopied(label);
-    window.setTimeout(() => setCopied(null), 1200);
+    if (!response.ok || !json.auction) {
+      setAuctionError(json.error || "Could not start auction.");
+      return;
+    }
+    router.push(`/auctions/${json.auction.id}`);
   }
 
   if (!photo) {
@@ -217,9 +226,12 @@ export default function ResultsPage() {
           ← New scan
         </Link>
         <p className={styles.brand}>Resellr</p>
-        <Link href="/plans" className={styles.plansLink}>
-          Plans
-        </Link>
+        <div className={styles.topRight}>
+          <ThemeToggle />
+          <Link href="/auctions" className={styles.plansLink}>
+            Auctions
+          </Link>
+        </div>
       </header>
 
       {loading && (
@@ -263,7 +275,8 @@ export default function ResultsPage() {
               <h1 className={styles.title}>{result.name}</h1>
               <p className={styles.condition}>{result.condition}</p>
               <p className={styles.pricingMode}>
-                Pricing: {result.pricingMode === "live" ? "Live eBay" : "Stub comps"}
+                Pricing:{" "}
+                {result.pricingMode === "live" ? "Live eBay" : "Stub comps"}
               </p>
             </div>
           </section>
@@ -377,76 +390,56 @@ export default function ResultsPage() {
             onPhotoChange={setPhoto}
           />
 
-          <section className={styles.ctaSection}>
+          <section className={styles.section}>
+            <h2>Start a live auction</h2>
+            <p className={styles.sectionSupport}>
+              Sell it here on Resellr — buyers bid live in the app.
+            </p>
+            <div className={styles.auctionForm}>
+              <label>
+                Starting bid ($)
+                <input
+                  type="number"
+                  min={1}
+                  value={startingBid}
+                  onChange={(e) => setStartingBid(e.target.value)}
+                />
+              </label>
+              <label>
+                Reserve (optional)
+                <input
+                  type="number"
+                  min={0}
+                  value={reservePrice}
+                  onChange={(e) => setReservePrice(e.target.value)}
+                  placeholder="No reserve"
+                />
+              </label>
+              <label>
+                Length
+                <select
+                  value={durationHours}
+                  onChange={(e) => setDurationHours(e.target.value)}
+                >
+                  <option value="1">1 hour</option>
+                  <option value="6">6 hours</option>
+                  <option value="12">12 hours</option>
+                  <option value="24">24 hours</option>
+                  <option value="48">48 hours</option>
+                  <option value="72">72 hours</option>
+                </select>
+              </label>
+            </div>
             <button
               type="button"
               className={styles.primaryBtn}
-              onClick={() => void generateListing()}
-              disabled={listingBusy}
+              onClick={() => void startAuction()}
+              disabled={auctionBusy}
             >
-              {listingBusy ? "Writing listing…" : "Generate listing"}
+              {auctionBusy ? "Starting auction…" : "Start live auction"}
             </button>
+            {auctionError && <p className={styles.auctionError}>{auctionError}</p>}
           </section>
-
-          {listing && (
-            <section className={styles.section}>
-              <h2>Listing draft</h2>
-              <label className={styles.field}>
-                Title
-                <div className={styles.fieldRow}>
-                  <input
-                    value={listing.title}
-                    onChange={(e) =>
-                      setListing({ ...listing, title: e.target.value })
-                    }
-                  />
-                  <button
-                    type="button"
-                    onClick={() => void copyField("title", listing.title)}
-                  >
-                    {copied === "title" ? "Copied" : "Copy"}
-                  </button>
-                </div>
-              </label>
-              <label className={styles.field}>
-                Category
-                <div className={styles.fieldRow}>
-                  <input
-                    value={listing.category}
-                    onChange={(e) =>
-                      setListing({ ...listing, category: e.target.value })
-                    }
-                  />
-                  <button
-                    type="button"
-                    onClick={() => void copyField("category", listing.category)}
-                  >
-                    {copied === "category" ? "Copied" : "Copy"}
-                  </button>
-                </div>
-              </label>
-              <label className={styles.field}>
-                Description
-                <div className={styles.fieldRow}>
-                  <textarea
-                    rows={6}
-                    value={listing.description}
-                    onChange={(e) =>
-                      setListing({ ...listing, description: e.target.value })
-                    }
-                  />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      void copyField("description", listing.description)
-                    }
-                  >
-                    {copied === "description" ? "Copied" : "Copy"}
-                  </button>
-                </div>
-              </label>
-            </section>
-          )}
         </main>
       )}
     </div>

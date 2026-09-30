@@ -1,0 +1,193 @@
+.shell {
+  min-height: 100dvh;
+  max-width: 920px;
+  margin-inline: auto;
+  padding: 1.1rem 1.1rem 2.5rem;
+  animation: fade-up 420ms ease-out;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  color: var(--text-muted);
+}
+
+.brand {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.main {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 1rem;
+}
+
+.hero img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: calc(var(--radius) + 4px);
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+}
+
+.heroCopy {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+}
+
+.badges {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.live,
+.ended {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+}
+
+.live {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.ended {
+  background: rgba(127, 127, 127, 0.16);
+  color: var(--text-muted);
+}
+
+.heroCopy h1 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.muted,
+.seller {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.bidLabel {
+  margin-top: 0.6rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.bidValue {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 6vw, 2.6rem);
+  font-weight: 650;
+  color: var(--accent);
+  letter-spacing: -0.04em;
+}
+
+.result {
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.bidForm {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.7rem;
+  align-items: end;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+}
+
+.bidForm label {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.bidForm input {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+.bidForm button {
+  padding: 0.85rem 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bidForm button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  grid-column: 1 / -1;
+  color: var(--danger);
+}
+
+.ok {
+  grid-column: 1 / -1;
+  color: var(--accent);
+}
+
+.section {
+  display: grid;
+  gap: 0.65rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.section h2 {
+  font-size: 1.05rem;
+}
+
+.bidList {
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.bidList li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+}
+
+@media (max-width: 760px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .bidForm {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,10 +1,12 @@
 import { promises as fs } from "fs";
 import path from "path";
-import type { ScanMonth, UserRecord } from "./types";
+import type { Auction, Bid, ScanMonth, UserRecord } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const SCANS_FILE = path.join(DATA_DIR, "scans.json");
+const AUCTIONS_FILE = path.join(DATA_DIR, "auctions.json");
+const BIDS_FILE = path.join(DATA_DIR, "bids.json");
 
 async function ensureDataDir() {
   await fs.mkdir(DATA_DIR, { recursive: true });
@@ -75,4 +77,63 @@ export async function incrementScanCount(userId: string, monthKey: string) {
 
 export function currentMonthKey(date = new Date()) {
   return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+export async function listAuctions() {
+  return readJson<Auction[]>(AUCTIONS_FILE, []);
+}
+
+export async function saveAuctions(auctions: Auction[]) {
+  await writeJson(AUCTIONS_FILE, auctions);
+}
+
+export async function findAuctionById(id: string) {
+  const auctions = await listAuctions();
+  return auctions.find((a) => a.id === id) ?? null;
+}
+
+export async function upsertAuction(auction: Auction) {
+  const auctions = await listAuctions();
+  const index = auctions.findIndex((a) => a.id === auction.id);
+  if (index >= 0) auctions[index] = auction;
+  else auctions.unshift(auction);
+  await saveAuctions(auctions);
+  return auction;
+}
+
+export async function listBids(auctionId?: string) {
+  const bids = await readJson<Bid[]>(BIDS_FILE, []);
+  if (!auctionId) return bids;
+  return bids.filter((b) => b.auctionId === auctionId);
+}
+
+export async function appendBid(bid: Bid) {
+  const bids = await readJson<Bid[]>(BIDS_FILE, []);
+  bids.unshift(bid);
+  await writeJson(BIDS_FILE, bids);
+  return bid;
+}
+
+/** Mark past-end auctions as ended and assign winners. */
+export async function syncAuctionStatuses() {
+  const now = Date.now();
+  const auctions = await listAuctions();
+  let changed = false;
+  const next = auctions.map((auction) => {
+    if (auction.status === "live" && new Date(auction.endsAt).getTime() <= now) {
+      changed = true;
+      const metReserve =
+        auction.reservePrice == null || auction.currentBid >= auction.reservePrice;
+      return {
+        ...auction,
+        status: "ended" as const,
+        winnerId: metReserve && auction.bidCount > 0 ? auction.currentBidderId : null,
+        winnerName:
+          metReserve && auction.bidCount > 0 ? auction.currentBidderName : null,
+      };
+    }
+    return auction;
+  });
+  if (changed) await saveAuctions(next);
+  return next;
 }

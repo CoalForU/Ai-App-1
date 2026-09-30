@@ -1,6 +1,8 @@
-# Resellr (Ai-App-1)
+# Resellr
 
-Reseller tool: photograph an item, see marketplace pricing + sell-through, draft a listing.
+**Domain:** [resellr.live](https://resellr.live)
+
+Scan thrift finds, check market pricing + sell-through, then run a **live auction** inside Resellr.
 
 ## Pricing
 
@@ -22,11 +24,11 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## What's built
 
-- **Phase 1** Scan → Results core loop
-- **Phase 2** Pricing adapters (live eBay Browse when keys set; StockX/FB stubs — see `DATA_SOURCES.md`)
-- **Phase 3** Listing generation (editable + copy)
-- **Phase 4** Auth + monthly scan limits
-- **Phase 5** Plans / demo upgrades (Stripe when configured)
-- **Phase 6** Background cleanup (Pro+; remove.bg when keyed, studio white fallback otherwise)
+- Scan → Results (comps + sell-through)
+- Live auctions (create, browse, bid with live polling)
+- Light / dark mode (user toggle)
+- Auth + monthly scan limits
+- Plans with demo upgrades (Stripe when configured)
+- Pro photo cleanup
 
-See `SPEC.md` for the product spec.
+See `SPEC.md` and `DATA_SOURCES.md`.

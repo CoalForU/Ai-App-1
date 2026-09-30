@@ -7,10 +7,20 @@
 }
 
 .topBar {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
+}
+
+.topRight {
+  justify-self: end;
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
 .backLink {
@@ -58,10 +68,10 @@
 }
 
 .featured {
-  border-color: rgba(182, 242, 74, 0.55);
+  border-color: var(--accent-border);
   background: linear-gradient(
     165deg,
-    rgba(182, 242, 74, 0.12),
+    var(--accent-soft),
     rgba(255, 255, 255, 0.02)
   );
   box-shadow: var(--shadow);

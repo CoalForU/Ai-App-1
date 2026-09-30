@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { compressImageDataUrl } from "@/lib/image";
 import {
   PLAN_LIMITS,
@@ -186,9 +187,13 @@ export default function ScanPage() {
       <header className={styles.topBar}>
         <div>
           <p className={styles.brand}>Resellr</p>
-          <p className={styles.tagline}>Scan. Price. List.</p>
+          <p className={styles.tagline}>Scan. Price. Auction.</p>
         </div>
         <div className={styles.topLinks}>
+          <ThemeToggle />
+          <Link className={styles.plansLink} href="/auctions">
+            Auctions
+          </Link>
           <Link className={styles.plansLink} href="/plans">
             Plans
           </Link>
@@ -247,8 +252,8 @@ export default function ScanPage() {
         </div>
 
         <p className={styles.hint}>
-          Point at the item. We&apos;ll ID it and show market prices on the next
-          screen.
+          Point at the item. We&apos;ll ID it, show market prices, and you can
+          start a live auction on Resellr.
         </p>
         <p className={styles.usage}>{limitLabel}</p>
 

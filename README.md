@@ -28,7 +28,8 @@ Open [http://localhost:3000](http://localhost:3000).
 - Live auctions (create, browse, bid with live polling)
 - Light / dark mode (user toggle)
 - Auth + monthly scan limits
-- Plans with demo upgrades (Stripe when configured)
+- Subscriptions with demo upgrades (Stripe when configured)
+- Settings menu for appearance (light/dark), account, and logout
 - Pro photo cleanup
 
 See `SPEC.md` and `DATA_SOURCES.md`.

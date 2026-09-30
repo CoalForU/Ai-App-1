@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BackgroundCleanup } from "@/components/BackgroundCleanup";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { SettingsMenu } from "@/components/SettingsMenu";
 import type { DemandLabel, PlanId, PriceWindow, ScanResult } from "@/lib/types";
 import { SCAN_RESULT_KEY, SCAN_STORAGE_KEY } from "@/lib/types";
 import styles from "./results.module.css";
@@ -129,7 +129,7 @@ export default function ResultsPage() {
           return;
         }
         if (response.status === 402) {
-          router.replace("/plans");
+          router.replace("/subscriptions");
           return;
         }
         if (!response.ok || !data.result) {
@@ -227,10 +227,10 @@ export default function ResultsPage() {
         </Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
-          <ThemeToggle />
           <Link href="/auctions" className={styles.plansLink}>
             Auctions
           </Link>
+          <SettingsMenu />
         </div>
       </header>
 

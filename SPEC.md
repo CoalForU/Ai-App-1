@@ -35,16 +35,17 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 - Auction detail with live bid updates
 - Soft close: last-2-minute bids extend by 2 minutes
 
-### Plans
+### Subscriptions
 - Basic $0 / Pro $15 / Ultimate $35
 
-### Theme
-- Blue accent
-- User-controlled light / dark mode
+### Settings
+- Preferences: light (white) / dark (black) appearance
+- Account / profile, subscriptions, support links
+- Log out
 
 ---
 
-## Plans
+## Subscriptions
 
 | Perk | Basic | Pro | Ultimate |
 |------|-------|-----|----------|

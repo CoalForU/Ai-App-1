@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { SettingsMenu } from "@/components/SettingsMenu";
 import { compressImageDataUrl } from "@/lib/image";
 import {
   PLAN_LIMITS,
@@ -122,7 +122,7 @@ export default function ScanPage() {
         return;
       }
       if (me.limit != null && (me.remaining ?? 0) <= 0) {
-        router.push("/plans");
+        router.push("/subscriptions");
         return;
       }
 
@@ -190,22 +190,10 @@ export default function ScanPage() {
           <p className={styles.tagline}>Scan. Price. Auction.</p>
         </div>
         <div className={styles.topLinks}>
-          <ThemeToggle />
           <Link className={styles.plansLink} href="/auctions">
             Auctions
           </Link>
-          <Link className={styles.plansLink} href="/plans">
-            Plans
-          </Link>
-          {me.authenticated ? (
-            <Link className={styles.plansLink} href="/account">
-              Account
-            </Link>
-          ) : (
-            <Link className={styles.plansLink} href="/login">
-              Sign in
-            </Link>
-          )}
+          <SettingsMenu />
         </div>
       </header>
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SettingsMenu } from "@/components/SettingsMenu";
 import { PLAN_LIMITS, type PlanId } from "@/lib/types";
 import styles from "./account.module.css";
 
@@ -36,12 +37,6 @@ export default function AccountPage() {
         setData(json);
       });
   }, [router]);
-
-  async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
-    router.refresh();
-  }
 
   async function setPlan(plan: PlanId) {
     const response = await fetch("/api/stripe/checkout", {
@@ -83,7 +78,7 @@ export default function AccountPage() {
     <div className={styles.shell}>
       <header className={styles.top}>
         <Link href="/">← Scan</Link>
-        <Link href="/plans">Plans</Link>
+        <SettingsMenu />
       </header>
 
       <main className={styles.main}>
@@ -91,7 +86,7 @@ export default function AccountPage() {
         <p className={styles.muted}>{data.user.email}</p>
 
         <section className={styles.card}>
-          <h2>Current plan</h2>
+          <h2>Current subscription</h2>
           <p className={styles.planName}>{plan.name}</p>
           <p className={styles.muted}>
             {data.usage?.limit == null
@@ -113,16 +108,11 @@ export default function AccountPage() {
               Back to Basic
             </button>
           </div>
+          <Link href="/subscriptions" className={styles.muted}>
+            View all subscriptions →
+          </Link>
           {message && <p className={styles.note}>{message}</p>}
         </section>
-
-        <button
-          type="button"
-          className={styles.logout}
-          onClick={() => void logout()}
-        >
-          Log out
-        </button>
       </main>
     </div>
   );

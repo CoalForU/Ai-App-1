@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     customer: customerId,
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${origin}/account?checkout=success`,
-    cancel_url: `${origin}/plans?checkout=cancel`,
+    cancel_url: `${origin}/subscriptions?checkout=cancel`,
     metadata: { userId: user.id, plan: body.plan },
   });
 

@@ -112,7 +112,7 @@ export function BackgroundCleanup({
         <h2>Photo cleanup</h2>
         <p className={styles.muted}>
           Auto background removal is a Pro perk.{" "}
-          <Link href="/plans">Upgrade to Pro</Link> to unlock it.
+          <Link href="/subscriptions">Upgrade to Pro</Link> to unlock it.
         </p>
       </section>
     );

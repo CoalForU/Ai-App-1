@@ -40,6 +40,12 @@
   margin-bottom: 0.4rem;
 }
 
+.sectionTitle {
+  font-size: 1.15rem;
+  margin: 0.5rem 0 0.75rem;
+  letter-spacing: -0.02em;
+}
+
 .intro p,
 .muted {
   color: var(--text-muted);

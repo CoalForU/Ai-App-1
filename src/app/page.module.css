@@ -76,6 +76,24 @@
   margin-top: -0.35rem;
 }
 
+.barcodeField {
+  display: grid;
+  gap: 0.35rem;
+  width: min(100%, 360px);
+  margin-inline: auto;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.barcodeField input {
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+
+
 .stage {
   display: flex;
   flex-direction: column;
@@ -256,7 +274,20 @@
 
 @media (max-width: 640px) {
   .shell {
-    padding: 0.9rem 0.9rem 1.25rem;
+    padding: 0.9rem 0.9rem 5.5rem;
+  }
+
+  .brand {
+    font-size: 1.55rem;
+  }
+
+  .topLinks {
+    gap: 0.35rem;
+  }
+
+  .plansLink {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.8rem;
   }
 
   .viewfinder {

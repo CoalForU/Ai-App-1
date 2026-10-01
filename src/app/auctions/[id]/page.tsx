@@ -37,10 +37,21 @@ export default function AuctionDetailPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [tick, setTick] = useState(0);
+  const [watching, setWatching] = useState(false);
+  const [meId, setMeId] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     const t = window.setInterval(() => setTick((n) => n + 1), 1000);
     return () => window.clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    void fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((json: { user: null | { id: string } }) => {
+        setMeId(json.user?.id ?? null);
+      });
   }, []);
 
   useEffect(() => {
@@ -62,6 +73,29 @@ export default function AuctionDetailPage() {
           );
         }
       }
+
+      const watchRes = await fetch("/api/watchlist");
+      if (watchRes.ok) {
+        const watchJson = (await watchRes.json()) as {
+          items: Array<{ auction: Auction }>;
+        };
+        if (!cancelled) {
+          setWatching(
+            (watchJson.items || []).some((i) => i.auction.id === params.id),
+          );
+        }
+      }
+
+      const ordersRes = await fetch("/api/orders?role=buyer");
+      if (ordersRes.ok) {
+        const ordersJson = (await ordersRes.json()) as {
+          orders: Array<{ id: string; auctionId: string }>;
+        };
+        const match = (ordersJson.orders || []).find(
+          (o) => o.auctionId === params.id,
+        );
+        if (!cancelled) setOrderId(match?.id ?? null);
+      }
     }
 
     void load();
@@ -72,6 +106,20 @@ export default function AuctionDetailPage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
+
+  async function toggleWatch() {
+    const res = await fetch("/api/watchlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ auctionId: params.id }),
+    });
+    if (res.status === 401) {
+      router.push("/login");
+      return;
+    }
+    const json = (await res.json()) as { watching?: boolean };
+    setWatching(Boolean(json.watching));
+  }
 
   const nextMin = useMemo(() => {
     if (!auction) return 1;
@@ -151,7 +199,14 @@ export default function AuctionDetailPage() {
             <p className={styles.muted}>
               {auction.category} · {auction.condition}
             </p>
-            <p className={styles.seller}>Seller: {auction.sellerName}</p>
+            <p className={styles.seller}>
+              Seller: {auction.sellerName}
+              {auction.brand ? ` · ${auction.brand}` : ""}
+              {auction.barcode ? ` · UPC ${auction.barcode}` : ""}
+            </p>
+            <button type="button" className={styles.watchBtn} onClick={() => void toggleWatch()}>
+              {watching ? "Watching" : "Add to watchlist"}
+            </button>
             <p className={styles.bidLabel}>
               {auction.currentBid > 0 ? "Current bid" : "Starting bid"}
             </p>
@@ -173,6 +228,14 @@ export default function AuctionDetailPage() {
                   : "Ended with no winning bid"}
               </p>
             )}
+            {auction.status === "ended" &&
+              auction.winnerId &&
+              meId === auction.winnerId &&
+              orderId && (
+                <Link href={`/orders/${orderId}`} className={styles.checkoutLink}>
+                  Checkout & pay →
+                </Link>
+              )}
           </div>
         </div>
 

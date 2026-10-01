@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { createAuction, getLiveAuctions } from "@/lib/auctions";
 
-export async function GET() {
-  const auctions = await getLiveAuctions();
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const auctions = await getLiveAuctions({
+    q: searchParams.get("q") || undefined,
+    category: searchParams.get("category") || undefined,
+    brand: searchParams.get("brand") || undefined,
+    size: searchParams.get("size") || undefined,
+    sort:
+      (searchParams.get("sort") as "ending" | "hot" | "newest" | "price" | null) ||
+      "ending",
+  });
   return NextResponse.json({ auctions });
 }
 
@@ -19,6 +28,9 @@ export async function POST(request: Request) {
     category?: string;
     condition?: string;
     photoDataUrl?: string;
+    brand?: string;
+    size?: string;
+    barcode?: string | null;
     startingBid?: number;
     reservePrice?: number | null;
     durationHours?: number;
@@ -55,6 +67,9 @@ export async function POST(request: Request) {
     category: body.category || "General",
     condition: body.condition || "Used",
     photoDataUrl: body.photoDataUrl,
+    brand: body.brand,
+    size: body.size,
+    barcode: body.barcode,
     startingBid,
     reservePrice: body.reservePrice ? Number(body.reservePrice) : null,
     durationHours,

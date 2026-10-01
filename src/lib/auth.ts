@@ -42,6 +42,9 @@ export async function createUser(input: {
     name: input.name.trim() || "Reseller",
     passwordHash: await hashPassword(input.password),
     plan: "basic",
+    verifiedSeller: false,
+    ratingAvg: 0,
+    ratingCount: 0,
     createdAt: new Date().toISOString(),
   };
   await upsertUser(user);
@@ -105,11 +108,15 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 }
 
 export function publicUser(user: UserRecord | SessionUser) {
+  const full = user as UserRecord;
   return {
     id: user.id,
     email: user.email,
     name: user.name,
     plan: user.plan,
+    verifiedSeller: Boolean(full.verifiedSeller),
+    ratingAvg: full.ratingAvg ?? 0,
+    ratingCount: full.ratingCount ?? 0,
     limits: PLAN_LIMITS[user.plan],
   };
 }

@@ -13,6 +13,9 @@ type MeResponse = {
     email: string;
     name: string;
     plan: PlanId;
+    verifiedSeller?: boolean;
+    ratingAvg?: number;
+    ratingCount?: number;
   };
   usage: null | {
     used: number;
@@ -84,6 +87,17 @@ export default function AccountPage() {
       <main className={styles.main}>
         <h1>{data.user.name}</h1>
         <p className={styles.muted}>{data.user.email}</p>
+        <p className={styles.muted}>
+          {data.user.verifiedSeller ? "Verified seller · " : ""}
+          {data.user.ratingCount
+            ? `${data.user.ratingAvg}★ (${data.user.ratingCount} ratings)`
+            : "No ratings yet"}
+        </p>
+        <div className={styles.row}>
+          <Link href="/dashboard">Seller dashboard</Link>
+          <Link href="/disputes">Disputes</Link>
+          <Link href="/history">Scan history</Link>
+        </div>
 
         <section className={styles.card}>
           <h2>Current subscription</h2>

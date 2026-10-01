@@ -37,20 +37,48 @@
   color: var(--text);
 }
 
-.form button {
+.primary,
+.secondary {
   margin-top: 0.35rem;
   padding: 0.9rem 1rem;
-  border: 0;
   border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-ink);
   font-weight: 700;
+  text-align: center;
   cursor: pointer;
 }
 
-.form button:disabled {
+.primary {
+  border: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.secondary {
+  display: block;
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.secondary:hover {
+  border-color: var(--accent);
+}
+
+.altAction {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.25rem;
+}
+
+.altAction p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .error {

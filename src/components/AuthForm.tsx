@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "./AuthForm.module.css";
 
@@ -87,9 +88,27 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       {error && <p className={styles.error}>{error}</p>}
 
-      <button type="submit" disabled={loading}>
+      <button type="submit" className={styles.primary} disabled={loading}>
         {loading ? "Working…" : mode === "login" ? "Sign in" : "Sign up"}
       </button>
+
+      {mode === "login" && (
+        <div className={styles.altAction}>
+          <p>New to Resellr?</p>
+          <Link href="/signup" className={styles.secondary}>
+            Sign up
+          </Link>
+        </div>
+      )}
+
+      {mode === "signup" && (
+        <div className={styles.altAction}>
+          <p>Already have an account?</p>
+          <Link href="/login" className={styles.secondary}>
+            Sign in
+          </Link>
+        </div>
+      )}
     </form>
   );
 }

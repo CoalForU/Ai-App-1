@@ -11,37 +11,66 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 
 ## Core loop
 
-1. User opens the scan screen and takes a photo
-2. AI identifies the item
+1. User opens the scan screen and takes a photo (optional barcode/UPC)
+2. AI identifies the item; scan is saved to history with feedback
 3. App shows pricing comps + sell-through
 4. User starts a live auction on Resellr
-5. Buyers bid in real time until the auction ends
+5. Buyers bid, watch, get notified; winner checks out; seller gets payout
 
 ---
 
 ## Screens
 
 ### Scan screen
-- Camera + upload
+- Camera + upload + optional barcode/UPC
 - Navigate straight to Results after capture
 
 ### Results page
 - Item ID, price range, history (30/60), sell-through
+- ID correct/wrong feedback + barcode field
 - Pro photo cleanup
-- **Start live auction** (starting bid, optional reserve, duration)
+- **Start live auction**
 
-### Live auctions
-- Browse live/ended auctions
-- Auction detail with live bid updates
-- Soft close: last-2-minute bids extend by 2 minutes
+### Live auctions / discovery
+- Search by query, category, brand, size
+- Sort: ending soon, hot, newest, highest bid
+- Hot right now rail
+- Auction detail: watchlist, live bids, soft close
+- Winner checkout CTA
+
+### Seller dashboard
+- Live / sold / unsold lots
+- Relist unsold
+- Orders + mark payout sent
+
+### Watchlist & notifications
+- Watch lots; outbid + ending-soon alerts
+- Wins, payments, payouts, disputes, ratings
+
+### Checkout / payouts
+- Demo pay for won auctions (Stripe Checkout when secret key set)
+- Seller marks payout sent; verified seller badge after first paid sale
+- **Marketplace take-rate / fees intentionally deferred**
+
+### Trust
+- Ratings after paid orders
+- Verified seller badge
+- Disputes after payment
+
+### Scan history
+- Past scans, barcodes, ID feedback
 
 ### Subscriptions
 - Basic $0 / Pro $15 / Ultimate $35
 
 ### Settings
-- Preferences: light (white) / dark (black) appearance
-- Account / profile, subscriptions, support links
-- Log out
+- Preferences: light (white) / dark (black)
+- Dashboard, notifications, watchlist, history, disputes
+- Account / subscriptions / support / log out
+
+### Mobile
+- PWA manifest + service worker
+- Camera capture attribute, mobile-friendly spacing
 
 ---
 

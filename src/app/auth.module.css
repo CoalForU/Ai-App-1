@@ -9,7 +9,17 @@
 .top {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 1rem;
   color: var(--text-muted);
   font-size: 0.92rem;
+}
+
+.topAction {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font-weight: 650;
 }

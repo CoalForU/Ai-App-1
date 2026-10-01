@@ -33,6 +33,7 @@ export default function ScanPage() {
   const [cameraState, setCameraState] = useState<CameraState>("idle");
   const [isCapturing, setIsCapturing] = useState(false);
   const [me, setMe] = useState<MeState>({ authenticated: false });
+  const [barcode, setBarcode] = useState("");
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -193,6 +194,11 @@ export default function ScanPage() {
           <Link className={styles.plansLink} href="/auctions">
             Auctions
           </Link>
+          {me.authenticated && (
+            <Link className={styles.plansLink} href="/dashboard">
+              Dashboard
+            </Link>
+          )}
           <SettingsMenu />
         </div>
       </header>
@@ -243,6 +249,15 @@ export default function ScanPage() {
           Point at the item. We&apos;ll ID it, show market prices, and you can
           start a live auction on Resellr.
         </p>
+        <label className={styles.barcodeField}>
+          Barcode / UPC (optional)
+          <input
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
+            placeholder="Scan or type UPC"
+            inputMode="numeric"
+          />
+        </label>
         <p className={styles.usage}>{limitLabel}</p>
 
         <div className={styles.controls}>
@@ -254,6 +269,7 @@ export default function ScanPage() {
                 router.push("/signup");
                 return;
               }
+              sessionStorage.setItem("resellr-scan-barcode", barcode.trim());
               fileInputRef.current?.click();
             }}
             disabled={isCapturing}
@@ -265,7 +281,10 @@ export default function ScanPage() {
             type="button"
             className={styles.shutter}
             aria-label="Take photo"
-            onClick={() => void capturePhoto()}
+            onClick={() => {
+              sessionStorage.setItem("resellr-scan-barcode", barcode.trim());
+              void capturePhoto();
+            }}
             disabled={cameraState !== "live" || isCapturing}
           >
             <span className={styles.shutterInner} />

@@ -103,6 +103,31 @@
   font-weight: 600;
 }
 
+.watchBtn,
+.checkoutLink {
+  margin-top: 0.55rem;
+  justify-self: start;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 650;
+  font-size: 0.88rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.watchBtn {
+  border: 1px solid var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.checkoutLink {
+  display: inline-flex;
+  border: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
 .bidForm {
   display: grid;
   grid-template-columns: 1fr auto;

@@ -95,6 +95,8 @@ export default function ResultsPage() {
   const [durationHours, setDurationHours] = useState("24");
   const [auctionBusy, setAuctionBusy] = useState(false);
   const [auctionError, setAuctionError] = useState<string | null>(null);
+  const [barcode, setBarcode] = useState("");
+  const [idFeedback, setIdFeedback] = useState<"correct" | "wrong" | null>(null);
 
   useEffect(() => {
     void fetch("/api/auth/me")
@@ -114,10 +116,18 @@ export default function ResultsPage() {
 
     async function identify() {
       try {
+        const storedBarcode =
+          typeof window !== "undefined"
+            ? sessionStorage.getItem("resellr-scan-barcode") || ""
+            : "";
+        if (storedBarcode) setBarcode(storedBarcode);
         const response = await fetch("/api/identify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageDataUrl: photo }),
+          body: JSON.stringify({
+            imageDataUrl: photo,
+            barcode: storedBarcode || undefined,
+          }),
         });
         const data = (await response.json()) as {
           result?: ScanResult;
@@ -189,6 +199,9 @@ export default function ResultsPage() {
         description: `${result.brand} · ${result.category}. ${result.condition}`,
         category: result.category,
         condition: result.condition,
+        brand: result.brand,
+        size: result.condition,
+        barcode: barcode || result.barcode || null,
         photoDataUrl: photo,
         startingBid: Number(startingBid),
         reservePrice: reservePrice ? Number(reservePrice) : null,
@@ -389,6 +402,75 @@ export default function ResultsPage() {
             plan={plan}
             onPhotoChange={setPhoto}
           />
+
+          <section className={styles.section}>
+            <h2>Was this ID right?</h2>
+            <p className={styles.sectionSupport}>
+              Help Resellr get smarter. Mark the ID, and add a barcode/UPC if you have one.
+            </p>
+            <div className={styles.auctionForm}>
+              <label>
+                Barcode / UPC
+                <input
+                  value={barcode}
+                  onChange={(e) => setBarcode(e.target.value)}
+                  placeholder="Optional"
+                />
+              </label>
+            </div>
+            <div className={styles.auctionForm}>
+              <button
+                type="button"
+                className={styles.primaryBtn}
+                disabled={idFeedback === "correct"}
+                onClick={() => {
+                  setIdFeedback("correct");
+                  void fetch("/api/scan-history").then(async (res) => {
+                    if (!res.ok) return;
+                    const json = (await res.json()) as {
+                      items: Array<{ id: string; result: { id: string } }>;
+                    };
+                    const match = (json.items || []).find(
+                      (i) => i.result.id === result.id || i.result.id === result.name,
+                    );
+                    const latest = json.items?.[0];
+                    const target = match?.id || latest?.id;
+                    if (!target) return;
+                    await fetch("/api/scan-history", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ id: target, feedback: "correct" }),
+                    });
+                  });
+                }}
+              >
+                {idFeedback === "correct" ? "Marked correct" : "ID looks correct"}
+              </button>
+              <button
+                type="button"
+                className={styles.primaryBtn}
+                disabled={idFeedback === "wrong"}
+                onClick={() => {
+                  setIdFeedback("wrong");
+                  void fetch("/api/scan-history").then(async (res) => {
+                    if (!res.ok) return;
+                    const json = (await res.json()) as {
+                      items: Array<{ id: string }>;
+                    };
+                    const latest = json.items?.[0];
+                    if (!latest) return;
+                    await fetch("/api/scan-history", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ id: latest.id, feedback: "wrong" }),
+                    });
+                  });
+                }}
+              >
+                {idFeedback === "wrong" ? "Marked wrong" : "ID is wrong"}
+              </button>
+            </div>
+          </section>
 
           <section className={styles.section}>
             <h2>Start a live auction</h2>

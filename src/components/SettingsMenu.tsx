@@ -20,6 +20,7 @@ export function SettingsMenu() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState<MeResponse["user"]>(null);
   const [loaded, setLoaded] = useState(false);
+  const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +40,20 @@ export function SettingsMenu() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    void fetch("/api/notifications")
+      .then((r) => r.json())
+      .then((json: { unread?: number }) => {
+        if (!cancelled) setUnread(json.unread || 0);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, open]);
+
   async function logout() {
     setOpen(false);
     await fetch("/api/auth/logout", { method: "POST" });
@@ -56,7 +71,7 @@ export function SettingsMenu() {
         aria-label="Open settings"
         onClick={() => setOpen((value) => !value)}
       >
-        Settings
+        Settings{unread > 0 ? ` (${unread})` : ""}
       </button>
 
       {open && (
@@ -91,14 +106,56 @@ export function SettingsMenu() {
             <div className={styles.section}>
               <p className={styles.label}>Account</p>
               {loaded && user ? (
-                <Link
-                  href="/account"
-                  className={styles.item}
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                >
-                  Profile &amp; usage
-                </Link>
+                <>
+                  <Link
+                    href="/account"
+                    className={styles.item}
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                  >
+                    Profile &amp; trust
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className={styles.item}
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                  >
+                    Seller dashboard
+                  </Link>
+                  <Link
+                    href="/notifications"
+                    className={styles.item}
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                  >
+                    Notifications{unread > 0 ? ` · ${unread}` : ""}
+                  </Link>
+                  <Link
+                    href="/watchlist"
+                    className={styles.item}
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                  >
+                    Watchlist
+                  </Link>
+                  <Link
+                    href="/history"
+                    className={styles.item}
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                  >
+                    Scan history
+                  </Link>
+                  <Link
+                    href="/disputes"
+                    className={styles.item}
+                    role="menuitem"
+                    onClick={() => setOpen(false)}
+                  >
+                    Disputes
+                  </Link>
+                </>
               ) : (
                 <>
                   <Link

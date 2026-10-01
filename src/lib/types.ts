@@ -39,6 +39,7 @@ export interface IdentifiedItem {
   category: string;
   condition: string;
   searchQuery: string;
+  barcode?: string | null;
 }
 
 export interface ScanResult extends IdentifiedItem {
@@ -73,6 +74,9 @@ export interface Auction {
   category: string;
   condition: string;
   photoDataUrl: string;
+  brand?: string;
+  size?: string;
+  barcode?: string | null;
   startingBid: number;
   reservePrice: number | null;
   currentBid: number;
@@ -86,14 +90,98 @@ export interface Auction {
   winnerName: string | null;
 }
 
+export type OrderStatus = "awaiting_payment" | "paid" | "payout_sent" | "disputed" | "cancelled";
+
+export interface Order {
+  id: string;
+  auctionId: string;
+  sellerId: string;
+  buyerId: string;
+  title: string;
+  amount: number;
+  status: OrderStatus;
+  createdAt: string;
+  paidAt: string | null;
+  payoutAt: string | null;
+  stripePaymentId?: string | null;
+}
+
+export type NotificationKind =
+  | "outbid"
+  | "ending_soon"
+  | "won"
+  | "sold"
+  | "payment"
+  | "payout"
+  | "dispute"
+  | "rating"
+  | "system";
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  kind: NotificationKind;
+  title: string;
+  body: string;
+  href?: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface WatchItem {
+  id: string;
+  userId: string;
+  auctionId: string;
+  createdAt: string;
+}
+
+export interface ScanHistoryItem {
+  id: string;
+  userId: string;
+  result: ScanResult;
+  photoDataUrl: string | null;
+  barcode: string | null;
+  feedback: "correct" | "wrong" | null;
+  createdAt: string;
+}
+
+export type DisputeStatus = "open" | "resolved" | "closed";
+
+export interface Dispute {
+  id: string;
+  orderId: string;
+  auctionId: string;
+  openerId: string;
+  againstId: string;
+  reason: string;
+  status: DisputeStatus;
+  resolution: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
+}
+
+export interface Rating {
+  id: string;
+  orderId: string;
+  fromUserId: string;
+  toUserId: string;
+  stars: number;
+  comment: string;
+  createdAt: string;
+}
+
 export interface UserRecord {
   id: string;
   email: string;
   name: string;
   passwordHash: string;
   plan: PlanId;
+  verifiedSeller?: boolean;
+  ratingAvg?: number;
+  ratingCount?: number;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  stripeConnectAccountId?: string;
   createdAt: string;
 }
 

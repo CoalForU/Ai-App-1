@@ -40,7 +40,7 @@ const planDefs = [
     perks: [
       { label: "~25 scans / month", included: true },
       { label: "Sell-through data", included: true },
-      { label: "25 listings / month", included: true },
+      { label: "15 listings / month", included: true },
       { label: "10 live auctions / month", included: true },
       { label: "Priority support", included: true },
       { label: "Background removal", included: false },

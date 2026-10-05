@@ -164,7 +164,7 @@ export const PLAN_LIMITS: Record<
     priceSemiannual: 84.99,
     scansPerMonth: 25,
     auctionsPerMonth: 10,
-    listingsPerMonth: 25,
+    listingsPerMonth: 15,
     prioritySupport: true,
     backgroundRemoval: false,
     customNotifications: false,

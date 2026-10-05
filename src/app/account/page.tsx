@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { HeaderNav } from "@/components/HeaderNav";
 import {
+  formatSavingsUsd,
   formatUsd,
   PLAN_LIMITS,
   priceForInterval,
@@ -138,7 +139,7 @@ export default function AccountPage() {
               onClick={() => void setPlan("pro", "semiannual")}
             >
               Pro {formatUsd(priceForInterval("pro", "semiannual"))}/6mo (save{" "}
-              {formatUsd(semiannualSavings("pro"))})
+              {formatSavingsUsd(semiannualSavings("pro"))})
             </button>
             <button
               type="button"
@@ -151,7 +152,7 @@ export default function AccountPage() {
               onClick={() => void setPlan("ultimate", "semiannual")}
             >
               Ultimate {formatUsd(priceForInterval("ultimate", "semiannual"))}
-              /6mo (save {formatUsd(semiannualSavings("ultimate"))})
+              /6mo (save {formatSavingsUsd(semiannualSavings("ultimate"))})
             </button>
             <button
               type="button"
@@ -162,8 +163,9 @@ export default function AccountPage() {
             </button>
           </div>
           <p className={styles.muted}>
-            6-month Pro saves {formatUsd(semiannualSavings("pro"))}; Ultimate
-            saves {formatUsd(semiannualSavings("ultimate"))} vs monthly.
+            6-month Pro saves {formatSavingsUsd(semiannualSavings("pro"))};
+            Ultimate saves{" "}
+            {formatSavingsUsd(semiannualSavings("ultimate"))} vs monthly.
           </p>
           <Link href="/subscriptions" className={styles.muted}>
             View all subscriptions →

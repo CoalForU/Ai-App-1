@@ -208,6 +208,11 @@ export function formatUsd(amount: number) {
   return amount % 1 === 0 ? `$${amount}` : `$${amount.toFixed(2)}`;
 }
 
+/** Whole-dollar savings for display, e.g. $5.01 → "$5+". */
+export function formatSavingsUsd(amount: number) {
+  return `$${Math.floor(amount)}+`;
+}
+
 export function minNextBid(currentBid: number, startingBid: number) {
   const base = Math.max(currentBid, startingBid);
   if (currentBid <= 0) return startingBid;

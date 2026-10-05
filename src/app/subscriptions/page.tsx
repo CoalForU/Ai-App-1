@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { HeaderNav } from "@/components/HeaderNav";
 import {
+  formatSavingsUsd,
   formatUsd,
   PLAN_LIMITS,
   priceForInterval,
@@ -184,7 +185,7 @@ export default function SubscriptionsPage() {
               >
                 <span className={styles.billingLabel}>6 months</span>
                 <span className={styles.billingSave}>
-                  Save up to {formatUsd(maxSemiannualSave)}
+                  Save up to {formatSavingsUsd(maxSemiannualSave)}
                 </span>
               </button>
             </div>
@@ -215,7 +216,7 @@ export default function SubscriptionsPage() {
                     {" "}
                     if billed monthly —{" "}
                     <span className={styles.savingsAmount}>
-                      you save {formatUsd(semiannualSavings(plan.id))}
+                      you save {formatSavingsUsd(semiannualSavings(plan.id))}
                     </span>
                   </p>
                 )}

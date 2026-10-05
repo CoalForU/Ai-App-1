@@ -137,9 +137,9 @@ export const PLAN_LIMITS: Record<
     priceMonthly: 15,
     scansPerMonth: 25,
     liveAuctions: true,
-    backgroundRemoval: true,
+    backgroundRemoval: false,
     prioritySupport: true,
-    customNotifications: true,
+    customNotifications: false,
     priceAlerts: false,
     marketData: false,
   },
@@ -155,6 +155,21 @@ export const PLAN_LIMITS: Record<
     marketData: true,
   },
 };
+
+export type BillingInterval = "monthly" | "semiannual";
+
+/** 6-month prepaid total with 5% savings vs paying month-to-month. */
+export function priceForInterval(
+  monthly: number,
+  interval: BillingInterval,
+): number {
+  if (interval === "monthly") return monthly;
+  return Math.round(monthly * 6 * 0.95 * 100) / 100;
+}
+
+export function formatUsd(amount: number) {
+  return amount % 1 === 0 ? `$${amount}` : `$${amount.toFixed(2)}`;
+}
 
 export function minNextBid(currentBid: number, startingBid: number) {
   const base = Math.max(currentBid, startingBid);

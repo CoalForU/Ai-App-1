@@ -27,7 +27,7 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 
 ### Results page
 - Item ID, price range, history (30/60), sell-through
-- Pro photo cleanup
+- Ultimate photo cleanup
 - **Start live auction** (starting bid, optional reserve, duration)
 
 ### Live auctions
@@ -36,7 +36,8 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 - Soft close: last-2-minute bids extend by 2 minutes
 
 ### Subscriptions
-- Basic $0 / Pro $15 / Ultimate $35
+- Basic $0 / Pro $15/mo / Ultimate $35/mo
+- Optional 6-month billing at 5% off ($85.50 Pro / $199.50 Ultimate)
 
 ### Settings
 - Preferences: light (white) / dark (black) appearance
@@ -52,9 +53,10 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 | Scans / month | ~7 | ~25 | Unlimited |
 | Sell-through | Yes | Yes | Yes |
 | Live auctions | Yes | Yes | Yes |
-| Background removal | No | Yes | Yes |
+| Background removal | No | No | Yes |
 | Priority support | No | Yes | Yes |
-| Custom notifications | No | Yes | Yes |
+| Custom notifications | No | No | Yes |
 | Price alerts | No | No | Yes |
 | Market data | No | No | Yes |
-| Price | $0 | $15/mo | $35/mo |
+| Monthly | $0 | $15/mo | $35/mo |
+| 6 months (save 5%) | — | $85.50 | $199.50 |

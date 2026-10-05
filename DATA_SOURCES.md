@@ -24,6 +24,8 @@ STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_PRICE_PRO=
 STRIPE_PRICE_ULTIMATE=
+STRIPE_PRICE_PRO_6MO=
+STRIPE_PRICE_ULTIMATE_6MO=
 AUTH_SECRET=             # required in production; auto-dev fallback locally
 REMOVE_BG_API_KEY=       # optional; otherwise client-side / canvas fallback
 ```

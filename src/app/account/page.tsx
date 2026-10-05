@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SettingsMenu } from "@/components/SettingsMenu";
-import { PLAN_LIMITS, type PlanId } from "@/lib/types";
+import {
+  formatUsd,
+  PLAN_LIMITS,
+  priceForInterval,
+  type BillingInterval,
+  type PlanId,
+} from "@/lib/types";
 import styles from "./account.module.css";
 
 type MeResponse = {
@@ -38,11 +44,11 @@ export default function AccountPage() {
       });
   }, [router]);
 
-  async function setPlan(plan: PlanId) {
+  async function setPlan(plan: PlanId, interval: BillingInterval = "monthly") {
     const response = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, interval }),
     });
     const json = (await response.json()) as {
       mode?: string;
@@ -94,11 +100,30 @@ export default function AccountPage() {
               : `${data.usage?.used ?? 0} / ${data.usage?.limit} scans used this month`}
           </p>
           <div className={styles.row}>
-            <button type="button" onClick={() => void setPlan("pro")}>
-              Switch to Pro ($15)
+            <button type="button" onClick={() => void setPlan("pro", "monthly")}>
+              Pro {formatUsd(PLAN_LIMITS.pro.priceMonthly)}/mo
             </button>
-            <button type="button" onClick={() => void setPlan("ultimate")}>
-              Switch to Ultimate ($35)
+            <button
+              type="button"
+              onClick={() => void setPlan("pro", "semiannual")}
+            >
+              Pro {formatUsd(priceForInterval(PLAN_LIMITS.pro.priceMonthly, "semiannual"))}/6mo
+            </button>
+            <button
+              type="button"
+              onClick={() => void setPlan("ultimate", "monthly")}
+            >
+              Ultimate {formatUsd(PLAN_LIMITS.ultimate.priceMonthly)}/mo
+            </button>
+            <button
+              type="button"
+              onClick={() => void setPlan("ultimate", "semiannual")}
+            >
+              Ultimate{" "}
+              {formatUsd(
+                priceForInterval(PLAN_LIMITS.ultimate.priceMonthly, "semiannual"),
+              )}
+              /6mo
             </button>
             <button
               type="button"
@@ -108,6 +133,7 @@ export default function AccountPage() {
               Back to Basic
             </button>
           </div>
+          <p className={styles.muted}>6-month plans save 5% vs monthly.</p>
           <Link href="/subscriptions" className={styles.muted}>
             View all subscriptions →
           </Link>

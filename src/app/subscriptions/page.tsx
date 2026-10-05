@@ -4,15 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SettingsMenu } from "@/components/SettingsMenu";
-import { PLAN_LIMITS, type PlanId } from "@/lib/types";
+import {
+  formatUsd,
+  PLAN_LIMITS,
+  priceForInterval,
+  type BillingInterval,
+  type PlanId,
+} from "@/lib/types";
 import styles from "./subscriptions.module.css";
 
-const plans = [
+const planDefs = [
   {
     id: "basic" as const,
     name: "Basic",
-    price: "$0",
-    cadence: "forever",
     blurb: "Feel the loop. Scan a few finds a month.",
     featured: false,
     perks: [
@@ -29,17 +33,15 @@ const plans = [
   {
     id: "pro" as const,
     name: "Pro",
-    price: "$15",
-    cadence: "/ month",
     blurb: "For part-time flippers who scan every weekend.",
     featured: true,
     perks: [
       { label: "~25 scans / month", included: true },
       { label: "Sell-through data", included: true },
       { label: "Live auctions", included: true },
-      { label: "Background removal", included: true },
+      { label: "Background removal", included: false },
       { label: "Priority support", included: true },
-      { label: "Custom notifications", included: true },
+      { label: "Custom notifications", included: false },
       { label: "Price alerts", included: false },
       { label: "Market data", included: false },
     ],
@@ -47,8 +49,6 @@ const plans = [
   {
     id: "ultimate" as const,
     name: "Ultimate",
-    price: "$35",
-    cadence: "/ month",
     blurb: "Unlimited sourcing for full-time resellers.",
     featured: false,
     perks: [
@@ -64,9 +64,24 @@ const plans = [
   },
 ];
 
+function priceLabel(planId: PlanId, interval: BillingInterval) {
+  const monthly = PLAN_LIMITS[planId].priceMonthly;
+  if (monthly === 0) {
+    return { price: "$0", cadence: "forever" };
+  }
+  if (interval === "semiannual") {
+    return {
+      price: formatUsd(priceForInterval(monthly, "semiannual")),
+      cadence: "/ 6 months",
+    };
+  }
+  return { price: formatUsd(monthly), cadence: "/ month" };
+}
+
 export default function SubscriptionsPage() {
   const router = useRouter();
   const [currentPlan, setCurrentPlan] = useState<PlanId | null>(null);
+  const [interval, setInterval] = useState<BillingInterval>("monthly");
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState<PlanId | null>(null);
 
@@ -88,7 +103,10 @@ export default function SubscriptionsPage() {
     const response = await fetch("/api/stripe/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({
+        plan,
+        interval: plan === "basic" ? "monthly" : interval,
+      }),
     });
     const json = (await response.json()) as {
       mode?: string;
@@ -134,12 +152,32 @@ export default function SubscriptionsPage() {
             Basic gets you hooked. Pro is the weekend flipper pick. Ultimate is
             for people who live in thrift stores.
           </p>
+          <div className={styles.billingToggle} role="group" aria-label="Billing period">
+            <button
+              type="button"
+              className={interval === "monthly" ? styles.billingActive : undefined}
+              onClick={() => setInterval("monthly")}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              className={
+                interval === "semiannual" ? styles.billingActive : undefined
+              }
+              onClick={() => setInterval("semiannual")}
+            >
+              6 months
+              <span className={styles.saveTag}>Save 5%</span>
+            </button>
+          </div>
           {message && <p className={styles.message}>{message}</p>}
         </div>
 
         <div className={styles.grid}>
-          {plans.map((plan) => {
+          {planDefs.map((plan) => {
             const isCurrent = currentPlan === plan.id;
+            const { price, cadence } = priceLabel(plan.id, interval);
             return (
               <article
                 key={plan.name}
@@ -148,9 +186,15 @@ export default function SubscriptionsPage() {
                 {plan.featured && <p className={styles.badge}>Most popular</p>}
                 <h2>{plan.name}</h2>
                 <p className={styles.price}>
-                  <span>{plan.price}</span>
-                  <small>{plan.cadence}</small>
+                  <span>{price}</span>
+                  <small>{cadence}</small>
                 </p>
+                {plan.id !== "basic" && interval === "semiannual" && (
+                  <p className={styles.savingsNote}>
+                    vs {formatUsd(PLAN_LIMITS[plan.id].priceMonthly)}/mo billed
+                    monthly
+                  </p>
+                )}
                 <p className={styles.blurb}>{plan.blurb}</p>
                 <ul>
                   {plan.perks.map((perk) => (

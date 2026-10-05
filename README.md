@@ -6,11 +6,13 @@ Scan thrift finds, check market pricing + sell-through, then run a **live auctio
 
 ## Pricing
 
-| Plan | Price | Scans |
-|------|-------|-------|
-| Basic | Free | ~7 / month |
-| Pro | $15 / month | ~25 / month |
-| Ultimate | $35 / month | Unlimited |
+| Plan | Monthly | 6 months (save 5%) | Scans |
+|------|---------|--------------------|-------|
+| Basic | Free | — | ~7 / month |
+| Pro | $15 / month | $85.50 | ~25 / month |
+| Ultimate | $35 / month | $199.50 | Unlimited |
+
+Background removal and custom notifications are Ultimate-only.
 
 ## Run locally
 
@@ -30,6 +32,6 @@ Open [http://localhost:3000](http://localhost:3000).
 - Auth + monthly scan limits
 - Subscriptions with demo upgrades (Stripe when configured)
 - Settings menu for appearance (light/dark), account, and logout
-- Pro photo cleanup
+- Ultimate photo cleanup
 
 See `SPEC.md` and `DATA_SOURCES.md`.

@@ -53,8 +53,8 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 | Scans / month | ~7 | ~25 | Unlimited |
 | Sell-through | Yes | Yes | Yes |
 | Live auctions | Yes | Yes | Yes |
-| Background removal | No | No | Yes |
 | Priority support | No | Yes | Yes |
+| Background removal | No | No | Yes |
 | Custom notifications | No | No | Yes |
 | Price alerts | No | No | Yes |
 | Market data | No | No | Yes |

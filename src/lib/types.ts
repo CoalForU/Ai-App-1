@@ -114,8 +114,8 @@ export const PLAN_LIMITS: Record<
     priceMonthly: number;
     scansPerMonth: number | null;
     liveAuctions: boolean;
-    backgroundRemoval: boolean;
     prioritySupport: boolean;
+    backgroundRemoval: boolean;
     customNotifications: boolean;
     priceAlerts: boolean;
     marketData: boolean;
@@ -126,8 +126,8 @@ export const PLAN_LIMITS: Record<
     priceMonthly: 0,
     scansPerMonth: 7,
     liveAuctions: true,
-    backgroundRemoval: false,
     prioritySupport: false,
+    backgroundRemoval: false,
     customNotifications: false,
     priceAlerts: false,
     marketData: false,
@@ -137,8 +137,8 @@ export const PLAN_LIMITS: Record<
     priceMonthly: 15,
     scansPerMonth: 25,
     liveAuctions: true,
-    backgroundRemoval: false,
     prioritySupport: true,
+    backgroundRemoval: false,
     customNotifications: false,
     priceAlerts: false,
     marketData: false,
@@ -148,8 +148,8 @@ export const PLAN_LIMITS: Record<
     priceMonthly: 35,
     scansPerMonth: null,
     liveAuctions: true,
-    backgroundRemoval: true,
     prioritySupport: true,
+    backgroundRemoval: true,
     customNotifications: true,
     priceAlerts: true,
     marketData: true,

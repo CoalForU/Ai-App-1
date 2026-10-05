@@ -187,9 +187,12 @@ export default function ScanPage() {
       <header className={styles.topBar}>
         <div>
           <p className={styles.brand}>Resellr</p>
-          <p className={styles.tagline}>Scan. Price. Auction.</p>
+          <p className={styles.tagline}>Scan. Price. List or auction.</p>
         </div>
         <div className={styles.topLinks}>
+          <Link className={styles.plansLink} href="/listings">
+            Listings
+          </Link>
           <Link className={styles.plansLink} href="/auctions">
             Auctions
           </Link>

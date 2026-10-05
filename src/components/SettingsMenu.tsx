@@ -127,6 +127,22 @@ export function SettingsMenu() {
               >
                 Subscriptions
               </Link>
+              <Link
+                href="/listings"
+                className={styles.item}
+                role="menuitem"
+                onClick={() => setOpen(false)}
+              >
+                Listings
+              </Link>
+              <Link
+                href="/auctions"
+                className={styles.item}
+                role="menuitem"
+                onClick={() => setOpen(false)}
+              >
+                Auctions
+              </Link>
             </div>
 
             <div className={styles.section}>

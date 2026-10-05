@@ -58,6 +58,7 @@ export default function AuctionsPage() {
         <Link href="/">← Scan</Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
+          <Link href="/listings">Listings</Link>
           <SettingsMenu />
         </div>
       </header>

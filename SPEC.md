@@ -2,7 +2,7 @@
 
 ## What we're building
 
-A reseller app on **resellr.live**. The user photographs an item, AI identifies it, the app shows market pricing and sell-through, then the user can run a **live auction inside Resellr** — not post to other apps/sites.
+A reseller app on **resellr.live**. The user photographs an item, AI identifies it, the app shows market pricing and sell-through, then the user can **list it at a fixed price** or run a **live auction inside Resellr** — not post to other apps/sites.
 
 **Repo:** github.com/CoalForU/Ai-App-1  
 **Domain:** resellr.live
@@ -14,8 +14,8 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 1. User opens the scan screen and takes a photo
 2. AI identifies the item
 3. App shows pricing comps + sell-through
-4. User starts a live auction on Resellr
-5. Buyers bid in real time until the auction ends
+4. User chooses **list for sale** or **start a live auction**
+5. Buyers buy now or bid in real time on Resellr
 
 ---
 
@@ -28,7 +28,13 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 ### Results page
 - Item ID, price range, history (30/60), sell-through
 - Ultimate photo cleanup
+- **Create listing** (fixed price)
 - **Start live auction** (starting bid, optional reserve, duration)
+- Shows remaining listing / auction allowance for the user’s plan
+
+### Listings
+- Browse active Buy Now listings
+- Listing detail with buy / end listing
 
 ### Live auctions
 - Browse live/ended auctions
@@ -52,7 +58,8 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 |------|-------|-----|----------|
 | Scans / month | ~7 | ~25 | Unlimited |
 | Sell-through | Yes | Yes | Yes |
-| Live auctions | Yes | Yes | Yes |
+| Listings / month | 5 | 25 | Unlimited |
+| Live auctions / month | 3 | 15 | Unlimited |
 | Priority support | No | Yes | Yes |
 | Background removal | No | No | Yes |
 | Custom notifications | No | No | Yes |

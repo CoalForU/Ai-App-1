@@ -23,7 +23,8 @@ const planDefs = [
     perks: [
       { label: "~7 scans / month", included: true },
       { label: "Sell-through data", included: true },
-      { label: "Live auctions", included: true },
+      { label: "5 listings / month", included: true },
+      { label: "3 live auctions / month", included: true },
       { label: "Priority support", included: false },
       { label: "Background removal", included: false },
       { label: "Custom notifications", included: false },
@@ -39,7 +40,8 @@ const planDefs = [
     perks: [
       { label: "~25 scans / month", included: true },
       { label: "Sell-through data", included: true },
-      { label: "Live auctions", included: true },
+      { label: "25 listings / month", included: true },
+      { label: "15 live auctions / month", included: true },
       { label: "Priority support", included: true },
       { label: "Background removal", included: false },
       { label: "Custom notifications", included: false },
@@ -55,7 +57,8 @@ const planDefs = [
     perks: [
       { label: "Unlimited scans", included: true },
       { label: "Sell-through data", included: true },
-      { label: "Live auctions", included: true },
+      { label: "Unlimited listings", included: true },
+      { label: "Unlimited live auctions", included: true },
       { label: "Priority support", included: true },
       { label: "Background removal", included: true },
       { label: "Custom notifications", included: true },
@@ -141,6 +144,7 @@ export default function SubscriptionsPage() {
         </Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
+          <Link href="/listings">Listings</Link>
           <Link href="/auctions">Auctions</Link>
           <SettingsMenu />
         </div>

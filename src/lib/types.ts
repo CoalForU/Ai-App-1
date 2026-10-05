@@ -103,6 +103,25 @@ export interface ScanMonth {
   count: number;
 }
 
+export type ListingStatus = "active" | "sold" | "ended";
+
+export interface Listing {
+  id: string;
+  sellerId: string;
+  sellerName: string;
+  title: string;
+  description: string;
+  category: string;
+  condition: string;
+  photoDataUrl: string;
+  price: number;
+  status: ListingStatus;
+  createdAt: string;
+  soldAt: string | null;
+  buyerId: string | null;
+  buyerName: string | null;
+}
+
 export const SCAN_STORAGE_KEY = "resellr-scan-photo";
 export const SCAN_RESULT_KEY = "resellr-scan-result";
 export const SCAN_CLEAN_PHOTO_KEY = "resellr-scan-clean-photo";
@@ -115,7 +134,10 @@ export const PLAN_LIMITS: Record<
     /** Prepaid 6-month total; null when the plan is free. */
     priceSemiannual: number | null;
     scansPerMonth: number | null;
-    liveAuctions: boolean;
+    /** Live auctions that can be started per month; null = unlimited. */
+    auctionsPerMonth: number | null;
+    /** Fixed-price listings that can be created per month; null = unlimited. */
+    listingsPerMonth: number | null;
     prioritySupport: boolean;
     backgroundRemoval: boolean;
     customNotifications: boolean;
@@ -128,7 +150,8 @@ export const PLAN_LIMITS: Record<
     priceMonthly: 0,
     priceSemiannual: null,
     scansPerMonth: 7,
-    liveAuctions: true,
+    auctionsPerMonth: 3,
+    listingsPerMonth: 5,
     prioritySupport: false,
     backgroundRemoval: false,
     customNotifications: false,
@@ -140,7 +163,8 @@ export const PLAN_LIMITS: Record<
     priceMonthly: 15,
     priceSemiannual: 84.99,
     scansPerMonth: 25,
-    liveAuctions: true,
+    auctionsPerMonth: 15,
+    listingsPerMonth: 25,
     prioritySupport: true,
     backgroundRemoval: false,
     customNotifications: false,
@@ -152,7 +176,8 @@ export const PLAN_LIMITS: Record<
     priceMonthly: 35,
     priceSemiannual: 199.99,
     scansPerMonth: null,
-    liveAuctions: true,
+    auctionsPerMonth: null,
+    listingsPerMonth: null,
     prioritySupport: true,
     backgroundRemoval: true,
     customNotifications: true,

@@ -82,6 +82,11 @@ function priceLabel(planId: PlanId, interval: BillingInterval) {
   return { price: formatUsd(monthly), cadence: "/ month" };
 }
 
+const maxSemiannualSave = Math.max(
+  semiannualSavings("pro"),
+  semiannualSavings("ultimate"),
+);
+
 export default function SubscriptionsPage() {
   const router = useRouter();
   const [currentPlan, setCurrentPlan] = useState<PlanId | null>(null);
@@ -163,26 +168,26 @@ export default function SubscriptionsPage() {
             >
               <button
                 type="button"
-                className={interval === "monthly" ? styles.billingActive : undefined}
+                className={`${styles.billingOption} ${
+                  interval === "monthly" ? styles.billingActive : ""
+                }`}
                 onClick={() => setInterval("monthly")}
               >
-                Monthly
+                <span className={styles.billingLabel}>Monthly</span>
               </button>
               <button
                 type="button"
-                className={
-                  interval === "semiannual" ? styles.billingActive : undefined
-                }
+                className={`${styles.billingOption} ${styles.billingSix} ${
+                  interval === "semiannual" ? styles.billingActive : ""
+                }`}
                 onClick={() => setInterval("semiannual")}
               >
-                6 months
+                <span className={styles.billingLabel}>6 months</span>
+                <span className={styles.billingSave}>
+                  Save up to {formatUsd(maxSemiannualSave)}
+                </span>
               </button>
             </div>
-            <p className={styles.billingHint}>
-              {interval === "semiannual"
-                ? "Pay once for six months — each plan shows how much you save."
-                : "Switch to 6 months to pay less than billing monthly."}
-            </p>
           </div>
           {message && <p className={styles.message}>{message}</p>}
         </div>
@@ -208,8 +213,10 @@ export default function SubscriptionsPage() {
                       {formatUsd(PLAN_LIMITS[plan.id].priceMonthly * 6)}
                     </span>
                     {" "}
-                    if billed monthly — you save{" "}
-                    {formatUsd(semiannualSavings(plan.id))}
+                    if billed monthly —{" "}
+                    <span className={styles.savingsAmount}>
+                      you save {formatUsd(semiannualSavings(plan.id))}
+                    </span>
                   </p>
                 )}
                 <p className={styles.blurb}>{plan.blurb}</p>

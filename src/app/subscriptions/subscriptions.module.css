@@ -59,23 +59,45 @@
 
 .billingToggle {
   display: inline-flex;
+  align-items: stretch;
   gap: 0.25rem;
   padding: 0.25rem;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.03);
 }
 
-.billingToggle button {
+.billingOption {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.12rem;
+  min-width: 6.5rem;
   border: 0;
-  border-radius: 999px;
-  padding: 0.5rem 1.05rem;
+  border-radius: 14px;
+  padding: 0.55rem 1rem;
   background: transparent;
   color: var(--text-muted);
   font: inherit;
-  font-size: 0.9rem;
-  font-weight: 600;
   cursor: pointer;
+}
+
+.billingSix {
+  min-width: 8.5rem;
+}
+
+.billingLabel {
+  font-size: 0.92rem;
+  font-weight: 650;
+  line-height: 1.1;
+}
+
+.billingSave {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--accent);
+  line-height: 1.15;
 }
 
 .billingActive {
@@ -83,11 +105,9 @@
   color: var(--accent-ink) !important;
 }
 
-.billingHint {
-  max-width: 28rem;
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  line-height: 1.4;
+.billingActive .billingSave {
+  color: var(--accent-ink);
+  opacity: 0.88;
 }
 
 .savingsNote {
@@ -103,9 +123,9 @@
   opacity: 0.75;
 }
 
-.savingsNote strong,
-.savingsNote {
-  font-weight: 500;
+.savingsAmount {
+  color: var(--accent);
+  font-weight: 650;
 }
 
 .grid {

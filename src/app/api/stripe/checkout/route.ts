@@ -6,7 +6,7 @@ import {
   priceIdForPlan,
   stripeConfigured,
 } from "@/lib/stripe";
-import type { PlanId } from "@/lib/types";
+import type { BillingInterval, PlanId } from "@/lib/types";
 
 export async function POST(request: Request) {
   const session = await getSessionUser();
@@ -14,10 +14,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   }
 
-  const body = (await request.json()) as { plan?: PlanId };
+  const body = (await request.json()) as {
+    plan?: PlanId;
+    interval?: BillingInterval;
+  };
   if (body.plan !== "pro" && body.plan !== "ultimate" && body.plan !== "basic") {
     return NextResponse.json({ error: "Invalid plan." }, { status: 400 });
   }
+
+  const interval: BillingInterval =
+    body.interval === "semiannual" ? "semiannual" : "monthly";
 
   // Demo upgrade path when Stripe isn't configured yet.
   if (!stripeConfigured() || body.plan === "basic") {
@@ -30,18 +36,26 @@ export async function POST(request: Request) {
     return NextResponse.json({
       mode: "demo",
       plan: user.plan,
+      interval,
       message:
         body.plan === "basic"
           ? "Switched to Basic."
-          : "Demo upgrade applied (Stripe keys not configured).",
+          : interval === "semiannual"
+            ? "Demo 6-month upgrade applied (Stripe keys not configured)."
+            : "Demo upgrade applied (Stripe keys not configured).",
     });
   }
 
   const stripe = getStripe();
-  const priceId = priceIdForPlan(body.plan);
+  const priceId = priceIdForPlan(body.plan, interval);
   if (!stripe || !priceId) {
     return NextResponse.json(
-      { error: "Stripe price not configured." },
+      {
+        error:
+          interval === "semiannual"
+            ? "Stripe 6-month price not configured."
+            : "Stripe price not configured.",
+      },
       { status: 500 },
     );
   }
@@ -70,7 +84,7 @@ export async function POST(request: Request) {
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${origin}/account?checkout=success`,
     cancel_url: `${origin}/subscriptions?checkout=cancel`,
-    metadata: { userId: user.id, plan: body.plan },
+    metadata: { userId: user.id, plan: body.plan, interval },
   });
 
   return NextResponse.json({ mode: "stripe", url: checkout.url });

@@ -103,6 +103,25 @@ export interface ScanMonth {
   count: number;
 }
 
+export type ListingStatus = "active" | "sold" | "ended";
+
+export interface Listing {
+  id: string;
+  sellerId: string;
+  sellerName: string;
+  title: string;
+  description: string;
+  category: string;
+  condition: string;
+  photoDataUrl: string;
+  price: number;
+  status: ListingStatus;
+  createdAt: string;
+  soldAt: string | null;
+  buyerId: string | null;
+  buyerName: string | null;
+}
+
 export const SCAN_STORAGE_KEY = "resellr-scan-photo";
 export const SCAN_RESULT_KEY = "resellr-scan-result";
 export const SCAN_CLEAN_PHOTO_KEY = "resellr-scan-clean-photo";
@@ -112,10 +131,15 @@ export const PLAN_LIMITS: Record<
   {
     name: string;
     priceMonthly: number;
+    /** Prepaid 6-month total; null when the plan is free. */
+    priceSemiannual: number | null;
     scansPerMonth: number | null;
-    liveAuctions: boolean;
-    backgroundRemoval: boolean;
+    /** Live auctions that can be started per month; null = unlimited. */
+    auctionsPerMonth: number | null;
+    /** Fixed-price listings that can be created per month; null = unlimited. */
+    listingsPerMonth: number | null;
     prioritySupport: boolean;
+    backgroundRemoval: boolean;
     customNotifications: boolean;
     priceAlerts: boolean;
     marketData: boolean;
@@ -124,10 +148,12 @@ export const PLAN_LIMITS: Record<
   basic: {
     name: "Basic",
     priceMonthly: 0,
+    priceSemiannual: null,
     scansPerMonth: 7,
-    liveAuctions: true,
-    backgroundRemoval: false,
+    auctionsPerMonth: 3,
+    listingsPerMonth: 5,
     prioritySupport: false,
+    backgroundRemoval: false,
     customNotifications: false,
     priceAlerts: false,
     marketData: false,
@@ -135,26 +161,57 @@ export const PLAN_LIMITS: Record<
   pro: {
     name: "Pro",
     priceMonthly: 15,
+    priceSemiannual: 84.99,
     scansPerMonth: 25,
-    liveAuctions: true,
-    backgroundRemoval: true,
+    auctionsPerMonth: 10,
+    listingsPerMonth: 15,
     prioritySupport: true,
-    customNotifications: true,
+    backgroundRemoval: false,
+    customNotifications: false,
     priceAlerts: false,
     marketData: false,
   },
   ultimate: {
     name: "Ultimate",
     priceMonthly: 35,
+    priceSemiannual: 189.99,
     scansPerMonth: null,
-    liveAuctions: true,
-    backgroundRemoval: true,
+    auctionsPerMonth: null,
+    listingsPerMonth: null,
     prioritySupport: true,
+    backgroundRemoval: true,
     customNotifications: true,
     priceAlerts: true,
     marketData: true,
   },
 };
+
+export type BillingInterval = "monthly" | "semiannual";
+
+export function priceForInterval(
+  planId: PlanId,
+  interval: BillingInterval,
+): number {
+  const plan = PLAN_LIMITS[planId];
+  if (interval === "monthly") return plan.priceMonthly;
+  return plan.priceSemiannual ?? plan.priceMonthly;
+}
+
+/** Dollars saved vs paying the monthly price for 6 months. */
+export function semiannualSavings(planId: PlanId): number {
+  const plan = PLAN_LIMITS[planId];
+  if (plan.priceSemiannual == null || plan.priceMonthly <= 0) return 0;
+  return Math.round((plan.priceMonthly * 6 - plan.priceSemiannual) * 100) / 100;
+}
+
+export function formatUsd(amount: number) {
+  return amount % 1 === 0 ? `$${amount}` : `$${amount.toFixed(2)}`;
+}
+
+/** Whole-dollar savings for display, e.g. $5.01 → "$5+". */
+export function formatSavingsUsd(amount: number) {
+  return `$${Math.floor(amount)}+`;
+}
 
 export function minNextBid(currentBid: number, startingBid: number) {
   const base = Math.max(currentBid, startingBid);

@@ -1,12 +1,13 @@
 import { promises as fs } from "fs";
 import path from "path";
-import type { Auction, Bid, ScanMonth, UserRecord } from "./types";
+import type { Auction, Bid, Listing, ScanMonth, UserRecord } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const SCANS_FILE = path.join(DATA_DIR, "scans.json");
 const AUCTIONS_FILE = path.join(DATA_DIR, "auctions.json");
 const BIDS_FILE = path.join(DATA_DIR, "bids.json");
+const LISTINGS_FILE = path.join(DATA_DIR, "listings.json");
 
 async function ensureDataDir() {
   await fs.mkdir(DATA_DIR, { recursive: true });
@@ -136,4 +137,46 @@ export async function syncAuctionStatuses() {
   });
   if (changed) await saveAuctions(next);
   return next;
+}
+
+export async function listListings() {
+  return readJson<Listing[]>(LISTINGS_FILE, []);
+}
+
+export async function saveListings(listings: Listing[]) {
+  await writeJson(LISTINGS_FILE, listings);
+}
+
+export async function findListingById(id: string) {
+  const listings = await listListings();
+  return listings.find((l) => l.id === id) ?? null;
+}
+
+export async function upsertListing(listing: Listing) {
+  const listings = await listListings();
+  const index = listings.findIndex((l) => l.id === listing.id);
+  if (index >= 0) listings[index] = listing;
+  else listings.unshift(listing);
+  await saveListings(listings);
+  return listing;
+}
+
+export async function countSellerAuctionsInMonth(
+  sellerId: string,
+  monthKey = currentMonthKey(),
+) {
+  const auctions = await listAuctions();
+  return auctions.filter(
+    (a) => a.sellerId === sellerId && a.createdAt.startsWith(monthKey),
+  ).length;
+}
+
+export async function countSellerListingsInMonth(
+  sellerId: string,
+  monthKey = currentMonthKey(),
+) {
+  const listings = await listListings();
+  return listings.filter(
+    (l) => l.sellerId === sellerId && l.createdAt.startsWith(monthKey),
+  ).length;
 }

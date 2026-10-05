@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BackgroundCleanup } from "@/components/BackgroundCleanup";
-import { SettingsMenu } from "@/components/SettingsMenu";
+import { HeaderNav } from "@/components/HeaderNav";
 import type { DemandLabel, PlanId, PriceWindow, ScanResult } from "@/lib/types";
 import { SCAN_RESULT_KEY, SCAN_STORAGE_KEY } from "@/lib/types";
 import styles from "./results.module.css";
@@ -93,8 +93,42 @@ export default function ResultsPage() {
   const [startingBid, setStartingBid] = useState("");
   const [reservePrice, setReservePrice] = useState("");
   const [durationHours, setDurationHours] = useState("24");
+  const [listPrice, setListPrice] = useState("");
   const [auctionBusy, setAuctionBusy] = useState(false);
+  const [listingBusy, setListingBusy] = useState(false);
   const [auctionError, setAuctionError] = useState<string | null>(null);
+  const [listingError, setListingError] = useState<string | null>(null);
+  const [sellUsage, setSellUsage] = useState<{
+    auctions: {
+      used: number;
+      limit: number | null;
+      remaining: number | null;
+    };
+    listings: {
+      used: number;
+      limit: number | null;
+      remaining: number | null;
+    };
+  } | null>(null);
+
+  function refreshSellUsage() {
+    void fetch("/api/sell-usage")
+      .then((r) => r.json())
+      .then(
+        (json: {
+          auctions: {
+            used: number;
+            limit: number | null;
+            remaining: number | null;
+          };
+          listings: {
+            used: number;
+            limit: number | null;
+            remaining: number | null;
+          };
+        }) => setSellUsage(json),
+      );
+  }
 
   useEffect(() => {
     void fetch("/api/auth/me")
@@ -102,6 +136,7 @@ export default function ResultsPage() {
       .then((json: { user: null | { plan: PlanId } }) => {
         if (json.user?.plan) setPlan(json.user.plan);
       });
+    refreshSellUsage();
   }, []);
 
   useEffect(() => {
@@ -139,6 +174,7 @@ export default function ResultsPage() {
           setResult(data.result);
           sessionStorage.setItem(SCAN_RESULT_KEY, JSON.stringify(data.result));
           setStartingBid(String(data.result.listAt));
+          setListPrice(String(data.result.listAt));
           setLoading(false);
         }
       } catch (err) {
@@ -204,11 +240,64 @@ export default function ResultsPage() {
       router.push("/login");
       return;
     }
+    if (response.status === 402) {
+      setAuctionError(json.error || "Auction limit reached.");
+      refreshSellUsage();
+      return;
+    }
     if (!response.ok || !json.auction) {
       setAuctionError(json.error || "Could not start auction.");
       return;
     }
     router.push(`/auctions/${json.auction.id}`);
+  }
+
+  async function createListing() {
+    if (!result || !photo) return;
+    setListingBusy(true);
+    setListingError(null);
+    const response = await fetch("/api/listings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: result.name,
+        description: `${result.brand} · ${result.category}. ${result.condition}`,
+        category: result.category,
+        condition: result.condition,
+        photoDataUrl: photo,
+        price: Number(listPrice),
+      }),
+    });
+    const json = (await response.json()) as {
+      listing?: { id: string };
+      error?: string;
+    };
+    setListingBusy(false);
+    if (response.status === 401) {
+      router.push("/login");
+      return;
+    }
+    if (response.status === 402) {
+      setListingError(json.error || "Listing limit reached.");
+      refreshSellUsage();
+      return;
+    }
+    if (!response.ok || !json.listing) {
+      setListingError(json.error || "Could not create listing.");
+      return;
+    }
+    router.push(`/listings/${json.listing.id}`);
+  }
+
+  function usageLabel(
+    used: number,
+    limit: number | null,
+    remaining: number | null,
+  ) {
+    if (limit == null) return `${used} used this month · Unlimited`;
+    return `${used} / ${limit} used this month${
+      remaining === 0 ? " · limit reached" : ""
+    }`;
   }
 
   if (!photo) {
@@ -227,10 +316,7 @@ export default function ResultsPage() {
         </Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
-          <Link href="/auctions" className={styles.plansLink}>
-            Auctions
-          </Link>
-          <SettingsMenu />
+          <HeaderNav />
         </div>
       </header>
 
@@ -391,10 +477,66 @@ export default function ResultsPage() {
           />
 
           <section className={styles.section}>
+            <h2>List for sale</h2>
+            <p className={styles.sectionSupport}>
+              Post a fixed price on Resellr. Buyers can buy now — no bidding.
+            </p>
+            {sellUsage && (
+              <p className={styles.sectionSupport}>
+                Listings:{" "}
+                {usageLabel(
+                  sellUsage.listings.used,
+                  sellUsage.listings.limit,
+                  sellUsage.listings.remaining,
+                )}
+              </p>
+            )}
+            <div className={styles.auctionForm}>
+              <label>
+                List price ($)
+                <input
+                  type="number"
+                  min={1}
+                  value={listPrice}
+                  onChange={(e) => setListPrice(e.target.value)}
+                />
+              </label>
+            </div>
+            <button
+              type="button"
+              className={styles.primaryBtn}
+              onClick={() => void createListing()}
+              disabled={
+                listingBusy ||
+                (sellUsage?.listings.remaining === 0 &&
+                  sellUsage.listings.limit != null)
+              }
+            >
+              {listingBusy ? "Listing…" : "Create listing"}
+            </button>
+            {listingError && (
+              <p className={styles.auctionError}>
+                {listingError}{" "}
+                <Link href="/subscriptions">View subscriptions</Link>
+              </p>
+            )}
+          </section>
+
+          <section className={styles.section}>
             <h2>Start a live auction</h2>
             <p className={styles.sectionSupport}>
-              Sell it here on Resellr — buyers bid live in the app.
+              Or let buyers compete with live bids. Limits depend on your plan.
             </p>
+            {sellUsage && (
+              <p className={styles.sectionSupport}>
+                Auctions:{" "}
+                {usageLabel(
+                  sellUsage.auctions.used,
+                  sellUsage.auctions.limit,
+                  sellUsage.auctions.remaining,
+                )}
+              </p>
+            )}
             <div className={styles.auctionForm}>
               <label>
                 Starting bid ($)
@@ -434,11 +576,20 @@ export default function ResultsPage() {
               type="button"
               className={styles.primaryBtn}
               onClick={() => void startAuction()}
-              disabled={auctionBusy}
+              disabled={
+                auctionBusy ||
+                (sellUsage?.auctions.remaining === 0 &&
+                  sellUsage.auctions.limit != null)
+              }
             >
               {auctionBusy ? "Starting auction…" : "Start live auction"}
             </button>
-            {auctionError && <p className={styles.auctionError}>{auctionError}</p>}
+            {auctionError && (
+              <p className={styles.auctionError}>
+                {auctionError}{" "}
+                <Link href="/subscriptions">View subscriptions</Link>
+              </p>
+            )}
           </section>
         </main>
       )}

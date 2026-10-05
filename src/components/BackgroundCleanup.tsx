@@ -111,8 +111,8 @@ export function BackgroundCleanup({
       <section className={styles.section}>
         <h2>Photo cleanup</h2>
         <p className={styles.muted}>
-          Auto background removal is a Pro perk.{" "}
-          <Link href="/subscriptions">Upgrade to Pro</Link> to unlock it.
+          Auto background removal is an Ultimate perk.{" "}
+          <Link href="/subscriptions">Upgrade to Ultimate</Link> to unlock it.
         </p>
       </section>
     );

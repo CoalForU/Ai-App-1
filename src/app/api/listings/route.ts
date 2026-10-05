@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
-import { createAuction, getLiveAuctions } from "@/lib/auctions";
+import { createListing, getActiveListings } from "@/lib/listings";
 import { assertCanSell, limitReachedMessage } from "@/lib/plan-usage";
 
 export async function GET() {
-  const auctions = await getLiveAuctions();
-  return NextResponse.json({ auctions });
+  const listings = await getActiveListings();
+  return NextResponse.json({ listings });
 }
 
 export async function POST(request: Request) {
@@ -14,14 +14,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Sign in required." }, { status: 401 });
   }
 
-  const gate = await assertCanSell("auctions");
+  const gate = await assertCanSell("listings");
   if (!gate.ok) {
     if (gate.reason === "auth") {
       return NextResponse.json({ error: "Sign in required." }, { status: 401 });
     }
     return NextResponse.json(
       {
-        error: limitReachedMessage("auctions", gate.usage.plan),
+        error: limitReachedMessage("listings", gate.usage.plan),
         usage: gate.usage,
       },
       { status: 402 },
@@ -34,9 +34,7 @@ export async function POST(request: Request) {
     category?: string;
     condition?: string;
     photoDataUrl?: string;
-    startingBid?: number;
-    reservePrice?: number | null;
-    durationHours?: number;
+    price?: number;
   };
 
   if (!body.title?.trim() || !body.photoDataUrl?.startsWith("data:image")) {
@@ -46,23 +44,15 @@ export async function POST(request: Request) {
     );
   }
 
-  const startingBid = Number(body.startingBid);
-  if (!Number.isFinite(startingBid) || startingBid < 1) {
+  const price = Number(body.price);
+  if (!Number.isFinite(price) || price < 1) {
     return NextResponse.json(
-      { error: "Starting bid must be at least $1." },
+      { error: "List price must be at least $1." },
       { status: 400 },
     );
   }
 
-  const durationHours = Number(body.durationHours ?? 24);
-  if (![1, 6, 12, 24, 48, 72].includes(durationHours)) {
-    return NextResponse.json(
-      { error: "Pick a valid auction length." },
-      { status: 400 },
-    );
-  }
-
-  const auction = await createAuction({
+  const listing = await createListing({
     sellerId: user.id,
     sellerName: user.name,
     title: body.title,
@@ -70,10 +60,8 @@ export async function POST(request: Request) {
     category: body.category || "General",
     condition: body.condition || "Used",
     photoDataUrl: body.photoDataUrl,
-    startingBid,
-    reservePrice: body.reservePrice ? Number(body.reservePrice) : null,
-    durationHours,
+    price,
   });
 
-  return NextResponse.json({ auction });
+  return NextResponse.json({ listing });
 }

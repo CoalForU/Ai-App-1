@@ -5,7 +5,7 @@ import { PLAN_LIMITS } from "@/lib/types";
 /**
  * Background removal.
  * Prefer remove.bg when REMOVE_BG_API_KEY is set.
- * Otherwise return a white-canvas composite fallback so Pro UX still works offline.
+ * Otherwise return a white-canvas composite fallback so Ultimate UX still works offline.
  */
 export async function POST(request: Request) {
   const user = await getSessionUser();
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   }
   if (!PLAN_LIMITS[user.plan].backgroundRemoval) {
     return NextResponse.json(
-      { error: "Background removal is a Pro feature." },
+      { error: "Background removal is an Ultimate feature." },
       { status: 402 },
     );
   }

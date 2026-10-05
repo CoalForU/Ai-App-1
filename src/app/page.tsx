@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SettingsMenu } from "@/components/SettingsMenu";
+import { HeaderNav } from "@/components/HeaderNav";
 import { compressImageDataUrl } from "@/lib/image";
 import {
   PLAN_LIMITS,
@@ -187,13 +187,10 @@ export default function ScanPage() {
       <header className={styles.topBar}>
         <div>
           <p className={styles.brand}>Resellr</p>
-          <p className={styles.tagline}>Scan. Price. Auction.</p>
+          <p className={styles.tagline}>Scan. Price. List or auction.</p>
         </div>
         <div className={styles.topLinks}>
-          <Link className={styles.plansLink} href="/auctions">
-            Auctions
-          </Link>
-          <SettingsMenu />
+          <HeaderNav />
         </div>
       </header>
 

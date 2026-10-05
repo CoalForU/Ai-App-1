@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { SettingsMenu } from "@/components/SettingsMenu";
+import { HeaderNav } from "@/components/HeaderNav";
 import type { Auction, Bid } from "@/lib/types";
 import { minNextBid } from "@/lib/types";
 import styles from "./auction.module.css";
@@ -133,7 +133,7 @@ export default function AuctionDetailPage() {
       <header className={styles.top}>
         <Link href="/auctions">← Auctions</Link>
         <p className={styles.brand}>Resellr</p>
-        <SettingsMenu />
+        <HeaderNav active="auctions" />
       </header>
 
       <main className={styles.main}>

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BackgroundCleanup } from "@/components/BackgroundCleanup";
-import { SettingsMenu } from "@/components/SettingsMenu";
+import { HeaderNav } from "@/components/HeaderNav";
 import type { DemandLabel, PlanId, PriceWindow, ScanResult } from "@/lib/types";
 import { SCAN_RESULT_KEY, SCAN_STORAGE_KEY } from "@/lib/types";
 import styles from "./results.module.css";
@@ -99,8 +99,18 @@ export default function ResultsPage() {
   const [auctionError, setAuctionError] = useState<string | null>(null);
   const [listingError, setListingError] = useState<string | null>(null);
   const [sellUsage, setSellUsage] = useState<{
-    auctions: { used: number; limit: number | null; remaining: number | null };
-    listings: { used: number; limit: number | null; remaining: number | null };
+    auctions: {
+      used: number;
+      limit: number | null;
+      remaining: number | null;
+      pooled?: boolean;
+    };
+    listings: {
+      used: number;
+      limit: number | null;
+      remaining: number | null;
+      pooled?: boolean;
+    };
   } | null>(null);
 
   function refreshSellUsage() {
@@ -112,11 +122,13 @@ export default function ResultsPage() {
             used: number;
             limit: number | null;
             remaining: number | null;
+            pooled?: boolean;
           };
           listings: {
             used: number;
             limit: number | null;
             remaining: number | null;
+            pooled?: boolean;
           };
         }) => setSellUsage(json),
       );
@@ -308,13 +320,7 @@ export default function ResultsPage() {
         </Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
-          <Link href="/listings" className={styles.plansLink}>
-            Listings
-          </Link>
-          <Link href="/auctions" className={styles.plansLink}>
-            Auctions
-          </Link>
-          <SettingsMenu />
+          <HeaderNav />
         </div>
       </header>
 
@@ -481,12 +487,17 @@ export default function ResultsPage() {
             </p>
             {sellUsage && (
               <p className={styles.sectionSupport}>
-                Listings:{" "}
-                {usageLabel(
-                  sellUsage.listings.used,
-                  sellUsage.listings.limit,
-                  sellUsage.listings.remaining,
-                )}
+                {sellUsage.listings.pooled
+                  ? `Sell actions: ${usageLabel(
+                      sellUsage.listings.used,
+                      sellUsage.listings.limit,
+                      sellUsage.listings.remaining,
+                    )}`
+                  : `Listings: ${usageLabel(
+                      sellUsage.listings.used,
+                      sellUsage.listings.limit,
+                      sellUsage.listings.remaining,
+                    )}`}
               </p>
             )}
             <div className={styles.auctionForm}>
@@ -525,9 +536,19 @@ export default function ResultsPage() {
             <p className={styles.sectionSupport}>
               Or let buyers compete with live bids. Limits depend on your plan.
             </p>
-            {sellUsage && (
+            {sellUsage && !sellUsage.auctions.pooled && (
               <p className={styles.sectionSupport}>
                 Auctions:{" "}
+                {usageLabel(
+                  sellUsage.auctions.used,
+                  sellUsage.auctions.limit,
+                  sellUsage.auctions.remaining,
+                )}
+              </p>
+            )}
+            {sellUsage?.auctions.pooled && (
+              <p className={styles.sectionSupport}>
+                Shared with listings above —{" "}
                 {usageLabel(
                   sellUsage.auctions.used,
                   sellUsage.auctions.limit,

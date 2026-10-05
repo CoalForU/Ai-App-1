@@ -1,0 +1,39 @@
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  justify-self: end;
+}
+
+.market {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.marketLink {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 0.05rem;
+  transition: color 140ms ease, border-color 140ms ease;
+}
+
+.marketLink:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.marketHere {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.rule {
+  width: 1px;
+  height: 0.9rem;
+  background: var(--line);
+}

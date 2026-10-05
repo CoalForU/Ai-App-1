@@ -43,7 +43,7 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 
 ### Subscriptions
 - Basic $0 / Pro $15/mo / Ultimate $35/mo
-- Optional 6-month billing: Pro $84.99 (save $5.01) / Ultimate $199.99 (save $10.01)
+- Optional 6-month billing: Pro $84.99 (save $5.01) / Ultimate $189.99 (save $20.01)
 
 ### Settings
 - Preferences: light (white) / dark (black) appearance
@@ -58,12 +58,13 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 |------|-------|-----|----------|
 | Scans / month | ~7 | ~25 | Unlimited |
 | Sell-through | Yes | Yes | Yes |
-| Listings / month | 5 | 25 | Unlimited |
-| Live auctions / month | 3 | 15 | Unlimited |
+| Listings / month | 5 | Shared | Unlimited |
+| Live auctions / month | 3 | Shared | Unlimited |
+| Sell actions / month | — | 10 (listings + auctions) | Unlimited |
 | Priority support | No | Yes | Yes |
 | Background removal | No | No | Yes |
 | Custom notifications | No | No | Yes |
 | Price alerts | No | No | Yes |
 | Market data | No | No | Yes |
 | Monthly | $0 | $15/mo | $35/mo |
-| 6 months | — | $84.99 (save $5.01) | $199.99 (save $10.01) |
+| 6 months | — | $84.99 (save $5.01) | $189.99 (save $20.01) |

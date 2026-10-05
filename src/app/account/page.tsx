@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SettingsMenu } from "@/components/SettingsMenu";
+import { HeaderNav } from "@/components/HeaderNav";
 import {
   formatUsd,
   PLAN_LIMITS,
@@ -29,8 +29,16 @@ type MeResponse = {
 };
 
 type SellUsage = {
-  auctions: { used: number; limit: number | null };
-  listings: { used: number; limit: number | null };
+  auctions: {
+    used: number;
+    limit: number | null;
+    pooled?: boolean;
+  };
+  listings: {
+    used: number;
+    limit: number | null;
+    pooled?: boolean;
+  };
 };
 
 export default function AccountPage() {
@@ -94,7 +102,7 @@ export default function AccountPage() {
     <div className={styles.shell}>
       <header className={styles.top}>
         <Link href="/">← Scan</Link>
-        <SettingsMenu />
+        <HeaderNav />
       </header>
 
       <main className={styles.main}>
@@ -111,16 +119,26 @@ export default function AccountPage() {
           </p>
           {sellUsage && (
             <>
-              <p className={styles.muted}>
-                {sellUsage.listings.limit == null
-                  ? `${sellUsage.listings.used} listings this month · Unlimited`
-                  : `${sellUsage.listings.used} / ${sellUsage.listings.limit} listings this month`}
-              </p>
-              <p className={styles.muted}>
-                {sellUsage.auctions.limit == null
-                  ? `${sellUsage.auctions.used} auctions this month · Unlimited`
-                  : `${sellUsage.auctions.used} / ${sellUsage.auctions.limit} auctions this month`}
-              </p>
+              {sellUsage.listings.pooled || sellUsage.auctions.pooled ? (
+                <p className={styles.muted}>
+                  {sellUsage.listings.limit == null
+                    ? `${sellUsage.listings.used} sell actions this month · Unlimited`
+                    : `${sellUsage.listings.used} / ${sellUsage.listings.limit} sell actions this month`}
+                </p>
+              ) : (
+                <>
+                  <p className={styles.muted}>
+                    {sellUsage.listings.limit == null
+                      ? `${sellUsage.listings.used} listings this month · Unlimited`
+                      : `${sellUsage.listings.used} / ${sellUsage.listings.limit} listings this month`}
+                  </p>
+                  <p className={styles.muted}>
+                    {sellUsage.auctions.limit == null
+                      ? `${sellUsage.auctions.used} auctions this month · Unlimited`
+                      : `${sellUsage.auctions.used} / ${sellUsage.auctions.limit} auctions this month`}
+                  </p>
+                </>
+              )}
             </>
           )}
           <div className={styles.row}>

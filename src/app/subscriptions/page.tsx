@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SettingsMenu } from "@/components/SettingsMenu";
+import { HeaderNav } from "@/components/HeaderNav";
 import {
   formatUsd,
   PLAN_LIMITS,
@@ -40,8 +40,7 @@ const planDefs = [
     perks: [
       { label: "~25 scans / month", included: true },
       { label: "Sell-through data", included: true },
-      { label: "25 listings / month", included: true },
-      { label: "15 live auctions / month", included: true },
+      { label: "10 sell actions / month", included: true },
       { label: "Priority support", included: true },
       { label: "Background removal", included: false },
       { label: "Custom notifications", included: false },
@@ -144,9 +143,7 @@ export default function SubscriptionsPage() {
         </Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
-          <Link href="/listings">Listings</Link>
-          <Link href="/auctions">Auctions</Link>
-          <SettingsMenu />
+          <HeaderNav />
         </div>
       </header>
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SettingsMenu } from "@/components/SettingsMenu";
+import { HeaderNav } from "@/components/HeaderNav";
 import type { Auction } from "@/lib/types";
 import { minNextBid } from "@/lib/types";
 import styles from "./auctions.module.css";
@@ -58,8 +58,7 @@ export default function AuctionsPage() {
         <Link href="/">← Scan</Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
-          <Link href="/listings">Listings</Link>
-          <SettingsMenu />
+          <HeaderNav active="auctions" />
         </div>
       </header>
 

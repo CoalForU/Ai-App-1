@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { SettingsMenu } from "@/components/SettingsMenu";
+import { HeaderNav } from "@/components/HeaderNav";
 import type { Listing } from "@/lib/types";
 import styles from "../auctions/auctions.module.css";
 
@@ -44,8 +44,7 @@ export default function ListingsPage() {
         <Link href="/">← Scan</Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
-          <Link href="/auctions">Auctions</Link>
-          <SettingsMenu />
+          <HeaderNav active="listings" />
         </div>
       </header>
 

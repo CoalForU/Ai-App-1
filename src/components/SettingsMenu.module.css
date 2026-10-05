@@ -3,19 +3,25 @@
 }
 
 .trigger {
-  padding: 0.55rem 0.9rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--text);
-  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  transition: border-color 160ms ease, background 160ms ease;
+  transition: transform 140ms ease, opacity 140ms ease;
 }
 
 .trigger:hover,
 .trigger[aria-expanded="true"] {
-  border-color: var(--accent-border);
+  transform: translateY(-1px);
+  opacity: 0.92;
 }
 
 .panel {

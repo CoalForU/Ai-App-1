@@ -40,7 +40,8 @@ const planDefs = [
     perks: [
       { label: "~25 scans / month", included: true },
       { label: "Sell-through data", included: true },
-      { label: "10 sell actions / month", included: true },
+      { label: "25 listings / month", included: true },
+      { label: "10 live auctions / month", included: true },
       { label: "Priority support", included: true },
       { label: "Background removal", included: false },
       { label: "Custom notifications", included: false },
@@ -170,7 +171,7 @@ export default function SubscriptionsPage() {
               onClick={() => setInterval("semiannual")}
             >
               6 months
-              <span className={styles.saveTag}>Save 5%</span>
+              <span className={styles.saveTag}>Save</span>
             </button>
           </div>
           {message && <p className={styles.message}>{message}</p>}

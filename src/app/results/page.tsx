@@ -103,13 +103,11 @@ export default function ResultsPage() {
       used: number;
       limit: number | null;
       remaining: number | null;
-      pooled?: boolean;
     };
     listings: {
       used: number;
       limit: number | null;
       remaining: number | null;
-      pooled?: boolean;
     };
   } | null>(null);
 
@@ -122,13 +120,11 @@ export default function ResultsPage() {
             used: number;
             limit: number | null;
             remaining: number | null;
-            pooled?: boolean;
           };
           listings: {
             used: number;
             limit: number | null;
             remaining: number | null;
-            pooled?: boolean;
           };
         }) => setSellUsage(json),
       );
@@ -487,17 +483,12 @@ export default function ResultsPage() {
             </p>
             {sellUsage && (
               <p className={styles.sectionSupport}>
-                {sellUsage.listings.pooled
-                  ? `Sell actions: ${usageLabel(
-                      sellUsage.listings.used,
-                      sellUsage.listings.limit,
-                      sellUsage.listings.remaining,
-                    )}`
-                  : `Listings: ${usageLabel(
-                      sellUsage.listings.used,
-                      sellUsage.listings.limit,
-                      sellUsage.listings.remaining,
-                    )}`}
+                Listings:{" "}
+                {usageLabel(
+                  sellUsage.listings.used,
+                  sellUsage.listings.limit,
+                  sellUsage.listings.remaining,
+                )}
               </p>
             )}
             <div className={styles.auctionForm}>
@@ -536,19 +527,9 @@ export default function ResultsPage() {
             <p className={styles.sectionSupport}>
               Or let buyers compete with live bids. Limits depend on your plan.
             </p>
-            {sellUsage && !sellUsage.auctions.pooled && (
+            {sellUsage && (
               <p className={styles.sectionSupport}>
                 Auctions:{" "}
-                {usageLabel(
-                  sellUsage.auctions.used,
-                  sellUsage.auctions.limit,
-                  sellUsage.auctions.remaining,
-                )}
-              </p>
-            )}
-            {sellUsage?.auctions.pooled && (
-              <p className={styles.sectionSupport}>
-                Shared with listings above —{" "}
                 {usageLabel(
                   sellUsage.auctions.used,
                   sellUsage.auctions.limit,

@@ -134,15 +134,10 @@ export const PLAN_LIMITS: Record<
     /** Prepaid 6-month total; null when the plan is free. */
     priceSemiannual: number | null;
     scansPerMonth: number | null;
-    /** Live auctions that can be started per month; null = unlimited (or use actionsPerMonth). */
+    /** Live auctions that can be started per month; null = unlimited. */
     auctionsPerMonth: number | null;
-    /** Fixed-price listings that can be created per month; null = unlimited (or use actionsPerMonth). */
+    /** Fixed-price listings that can be created per month; null = unlimited. */
     listingsPerMonth: number | null;
-    /**
-     * Shared monthly cap for listings + auctions.
-     * When set, overrides the separate listing/auction caps.
-     */
-    actionsPerMonth: number | null;
     prioritySupport: boolean;
     backgroundRemoval: boolean;
     customNotifications: boolean;
@@ -157,7 +152,6 @@ export const PLAN_LIMITS: Record<
     scansPerMonth: 7,
     auctionsPerMonth: 3,
     listingsPerMonth: 5,
-    actionsPerMonth: null,
     prioritySupport: false,
     backgroundRemoval: false,
     customNotifications: false,
@@ -169,9 +163,8 @@ export const PLAN_LIMITS: Record<
     priceMonthly: 15,
     priceSemiannual: 84.99,
     scansPerMonth: 25,
-    auctionsPerMonth: null,
-    listingsPerMonth: null,
-    actionsPerMonth: 10,
+    auctionsPerMonth: 10,
+    listingsPerMonth: 25,
     prioritySupport: true,
     backgroundRemoval: false,
     customNotifications: false,
@@ -185,7 +178,6 @@ export const PLAN_LIMITS: Record<
     scansPerMonth: null,
     auctionsPerMonth: null,
     listingsPerMonth: null,
-    actionsPerMonth: null,
     prioritySupport: true,
     backgroundRemoval: true,
     customNotifications: true,

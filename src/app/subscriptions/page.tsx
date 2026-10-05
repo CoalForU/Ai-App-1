@@ -155,24 +155,34 @@ export default function SubscriptionsPage() {
             Basic gets you hooked. Pro is the weekend flipper pick. Ultimate is
             for people who live in thrift stores.
           </p>
-          <div className={styles.billingToggle} role="group" aria-label="Billing period">
-            <button
-              type="button"
-              className={interval === "monthly" ? styles.billingActive : undefined}
-              onClick={() => setInterval("monthly")}
+          <div className={styles.billingBlock}>
+            <div
+              className={styles.billingToggle}
+              role="group"
+              aria-label="Billing period"
             >
-              Monthly
-            </button>
-            <button
-              type="button"
-              className={
-                interval === "semiannual" ? styles.billingActive : undefined
-              }
-              onClick={() => setInterval("semiannual")}
-            >
-              6 months
-              <span className={styles.saveTag}>Save</span>
-            </button>
+              <button
+                type="button"
+                className={interval === "monthly" ? styles.billingActive : undefined}
+                onClick={() => setInterval("monthly")}
+              >
+                Monthly
+              </button>
+              <button
+                type="button"
+                className={
+                  interval === "semiannual" ? styles.billingActive : undefined
+                }
+                onClick={() => setInterval("semiannual")}
+              >
+                6 months
+              </button>
+            </div>
+            <p className={styles.billingHint}>
+              {interval === "semiannual"
+                ? "Pay once for six months — each plan shows how much you save."
+                : "Switch to 6 months to pay less than billing monthly."}
+            </p>
           </div>
           {message && <p className={styles.message}>{message}</p>}
         </div>
@@ -194,8 +204,12 @@ export default function SubscriptionsPage() {
                 </p>
                 {plan.id !== "basic" && interval === "semiannual" && (
                   <p className={styles.savingsNote}>
-                    Save {formatUsd(semiannualSavings(plan.id))} vs{" "}
-                    {formatUsd(PLAN_LIMITS[plan.id].priceMonthly * 6)} monthly
+                    <span className={styles.savingsStrike}>
+                      {formatUsd(PLAN_LIMITS[plan.id].priceMonthly * 6)}
+                    </span>
+                    {" "}
+                    if billed monthly — you save{" "}
+                    {formatUsd(semiannualSavings(plan.id))}
                   </p>
                 )}
                 <p className={styles.blurb}>{plan.blurb}</p>

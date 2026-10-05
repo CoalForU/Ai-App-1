@@ -112,6 +112,8 @@ export const PLAN_LIMITS: Record<
   {
     name: string;
     priceMonthly: number;
+    /** Prepaid 6-month total; null when the plan is free. */
+    priceSemiannual: number | null;
     scansPerMonth: number | null;
     liveAuctions: boolean;
     prioritySupport: boolean;
@@ -124,6 +126,7 @@ export const PLAN_LIMITS: Record<
   basic: {
     name: "Basic",
     priceMonthly: 0,
+    priceSemiannual: null,
     scansPerMonth: 7,
     liveAuctions: true,
     prioritySupport: false,
@@ -135,6 +138,7 @@ export const PLAN_LIMITS: Record<
   pro: {
     name: "Pro",
     priceMonthly: 15,
+    priceSemiannual: 84.99,
     scansPerMonth: 25,
     liveAuctions: true,
     prioritySupport: true,
@@ -146,6 +150,7 @@ export const PLAN_LIMITS: Record<
   ultimate: {
     name: "Ultimate",
     priceMonthly: 35,
+    priceSemiannual: 199.99,
     scansPerMonth: null,
     liveAuctions: true,
     prioritySupport: true,
@@ -158,13 +163,20 @@ export const PLAN_LIMITS: Record<
 
 export type BillingInterval = "monthly" | "semiannual";
 
-/** 6-month prepaid total with 5% savings vs paying month-to-month. */
 export function priceForInterval(
-  monthly: number,
+  planId: PlanId,
   interval: BillingInterval,
 ): number {
-  if (interval === "monthly") return monthly;
-  return Math.round(monthly * 6 * 0.95 * 100) / 100;
+  const plan = PLAN_LIMITS[planId];
+  if (interval === "monthly") return plan.priceMonthly;
+  return plan.priceSemiannual ?? plan.priceMonthly;
+}
+
+/** Dollars saved vs paying the monthly price for 6 months. */
+export function semiannualSavings(planId: PlanId): number {
+  const plan = PLAN_LIMITS[planId];
+  if (plan.priceSemiannual == null || plan.priceMonthly <= 0) return 0;
+  return Math.round((plan.priceMonthly * 6 - plan.priceSemiannual) * 100) / 100;
 }
 
 export function formatUsd(amount: number) {

@@ -8,6 +8,7 @@ import {
   formatUsd,
   PLAN_LIMITS,
   priceForInterval,
+  semiannualSavings,
   type BillingInterval,
   type PlanId,
 } from "@/lib/types";
@@ -71,7 +72,7 @@ function priceLabel(planId: PlanId, interval: BillingInterval) {
   }
   if (interval === "semiannual") {
     return {
-      price: formatUsd(priceForInterval(monthly, "semiannual")),
+      price: formatUsd(priceForInterval(planId, "semiannual")),
       cadence: "/ 6 months",
     };
   }
@@ -191,8 +192,8 @@ export default function SubscriptionsPage() {
                 </p>
                 {plan.id !== "basic" && interval === "semiannual" && (
                   <p className={styles.savingsNote}>
-                    vs {formatUsd(PLAN_LIMITS[plan.id].priceMonthly)}/mo billed
-                    monthly
+                    Save {formatUsd(semiannualSavings(plan.id))} vs{" "}
+                    {formatUsd(PLAN_LIMITS[plan.id].priceMonthly * 6)} monthly
                   </p>
                 )}
                 <p className={styles.blurb}>{plan.blurb}</p>

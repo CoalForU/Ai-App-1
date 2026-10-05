@@ -8,6 +8,7 @@ import {
   formatUsd,
   PLAN_LIMITS,
   priceForInterval,
+  semiannualSavings,
   type BillingInterval,
   type PlanId,
 } from "@/lib/types";
@@ -107,7 +108,8 @@ export default function AccountPage() {
               type="button"
               onClick={() => void setPlan("pro", "semiannual")}
             >
-              Pro {formatUsd(priceForInterval(PLAN_LIMITS.pro.priceMonthly, "semiannual"))}/6mo
+              Pro {formatUsd(priceForInterval("pro", "semiannual"))}/6mo (save{" "}
+              {formatUsd(semiannualSavings("pro"))})
             </button>
             <button
               type="button"
@@ -119,11 +121,8 @@ export default function AccountPage() {
               type="button"
               onClick={() => void setPlan("ultimate", "semiannual")}
             >
-              Ultimate{" "}
-              {formatUsd(
-                priceForInterval(PLAN_LIMITS.ultimate.priceMonthly, "semiannual"),
-              )}
-              /6mo
+              Ultimate {formatUsd(priceForInterval("ultimate", "semiannual"))}
+              /6mo (save {formatUsd(semiannualSavings("ultimate"))})
             </button>
             <button
               type="button"
@@ -133,7 +132,10 @@ export default function AccountPage() {
               Back to Basic
             </button>
           </div>
-          <p className={styles.muted}>6-month plans save 5% vs monthly.</p>
+          <p className={styles.muted}>
+            6-month Pro saves {formatUsd(semiannualSavings("pro"))}; Ultimate
+            saves {formatUsd(semiannualSavings("ultimate"))} vs monthly.
+          </p>
           <Link href="/subscriptions" className={styles.muted}>
             View all subscriptions →
           </Link>

@@ -6,11 +6,11 @@ Scan thrift finds, check market pricing + sell-through, then run a **live auctio
 
 ## Pricing
 
-| Plan | Monthly | 6 months (save 5%) | Scans |
-|------|---------|--------------------|-------|
+| Plan | Monthly | 6 months | Scans |
+|------|---------|----------|-------|
 | Basic | Free | — | ~7 / month |
-| Pro | $15 / month | $85.50 | ~25 / month |
-| Ultimate | $35 / month | $199.50 | Unlimited |
+| Pro | $15 / month | $84.99 (save $5.01) | ~25 / month |
+| Ultimate | $35 / month | $199.99 (save $10.01) | Unlimited |
 
 Background removal and custom notifications are Ultimate-only.
 

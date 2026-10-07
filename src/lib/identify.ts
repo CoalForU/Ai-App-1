@@ -1,6 +1,19 @@
 import type { IdentifiedItem } from "./types";
 import { DEFAULT_ITEM } from "./pricing";
 
+/** Build an item from a typed/manual market lookup (no photo). */
+export function identifyItemFromQuery(query: string): IdentifiedItem {
+  const cleaned = query.trim().replace(/\s+/g, " ");
+  return {
+    id: `lookup-${Date.now()}`,
+    name: cleaned,
+    brand: "Unknown",
+    category: "General",
+    condition: "Used — check condition in person",
+    searchQuery: cleaned,
+  };
+}
+
 export async function identifyItemFromPhoto(
   imageDataUrl?: string | null,
 ): Promise<IdentifiedItem> {

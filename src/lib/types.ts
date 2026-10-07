@@ -73,6 +73,10 @@ export interface Auction {
   category: string;
   condition: string;
   photoDataUrl: string;
+  /** Latest camera frame from the seller's live broadcast. */
+  liveFrameDataUrl: string | null;
+  lastFrameAt: string | null;
+  broadcasting: boolean;
   startingBid: number;
   reservePrice: number | null;
   currentBid: number;

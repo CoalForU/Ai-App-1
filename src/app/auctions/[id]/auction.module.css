@@ -98,6 +98,12 @@
   letter-spacing: -0.04em;
 }
 
+.hostLink {
+  margin-top: 0.55rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
 .result {
   margin-top: 0.5rem;
   font-weight: 600;

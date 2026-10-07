@@ -1,18 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { HeaderNav } from "@/components/HeaderNav";
-import { compressImageDataUrl } from "@/lib/image";
-import {
-  PLAN_LIMITS,
-  SCAN_STORAGE_KEY,
-  type PlanId,
-} from "@/lib/types";
+import { ItemScanner } from "@/components/ItemScanner";
+import { PLAN_LIMITS, SCAN_RESULT_KEY, SCAN_STORAGE_KEY, type PlanId } from "@/lib/types";
 import styles from "./page.module.css";
-
-type CameraState = "idle" | "starting" | "live" | "blocked" | "unsupported";
 
 type MeState = {
   authenticated: boolean;
@@ -23,21 +17,15 @@ type MeState = {
   remaining?: number | null;
 };
 
-export default function ScanPage() {
+type Mode = "camera" | "lookup";
+
+export default function ScannerPage() {
   const router = useRouter();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-
-  const [cameraState, setCameraState] = useState<CameraState>("idle");
-  const [isCapturing, setIsCapturing] = useState(false);
+  const [mode, setMode] = useState<Mode>("camera");
+  const [query, setQuery] = useState("");
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
   const [me, setMe] = useState<MeState>({ authenticated: false });
-
-  const stopCamera = useCallback(() => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-  }, []);
 
   useEffect(() => {
     void fetch("/api/auth/me")
@@ -67,227 +55,135 @@ export default function ScanPage() {
       );
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function startCamera() {
-      if (!navigator.mediaDevices?.getUserMedia) {
-        if (!cancelled) setCameraState("unsupported");
-        return;
-      }
-
-      if (!cancelled) setCameraState("starting");
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: { ideal: "environment" },
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-          audio: false,
-        });
-
-        if (cancelled) {
-          stream.getTracks().forEach((track) => track.stop());
-          return;
-        }
-
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          await videoRef.current.play();
-        }
-        if (!cancelled) setCameraState("live");
-      } catch {
-        if (!cancelled) setCameraState("blocked");
-      }
+  function gateOrRedirect() {
+    if (!me.authenticated) {
+      router.push("/signup");
+      return false;
     }
+    if (me.limit != null && (me.remaining ?? 0) <= 0) {
+      router.push("/subscriptions");
+      return false;
+    }
+    return true;
+  }
 
-    const timer = window.setTimeout(() => {
-      void startCamera();
-    }, 0);
+  async function onPhoto(dataUrl: string) {
+    if (!gateOrRedirect()) return;
+    sessionStorage.setItem(SCAN_STORAGE_KEY, dataUrl);
+    sessionStorage.removeItem(SCAN_RESULT_KEY);
+    router.push("/results?from=scanner");
+  }
 
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-      stopCamera();
+  async function onLookup(event: React.FormEvent) {
+    event.preventDefault();
+    if (!gateOrRedirect()) return;
+    setLookupBusy(true);
+    setLookupError(null);
+    const response = await fetch("/api/lookup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+    });
+    const json = (await response.json()) as {
+      result?: unknown;
+      error?: string;
     };
-  }, [stopCamera]);
-
-  const goToResults = useCallback(
-    async (dataUrl: string) => {
-      if (!me.authenticated) {
-        router.push("/signup");
-        return;
-      }
-      if (me.limit != null && (me.remaining ?? 0) <= 0) {
-        router.push("/subscriptions");
-        return;
-      }
-
-      const compressed = await compressImageDataUrl(dataUrl);
-      sessionStorage.setItem(SCAN_STORAGE_KEY, compressed);
-      stopCamera();
-      router.push("/results");
-    },
-    [me, router, stopCamera],
-  );
-
-  const capturePhoto = useCallback(async () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas || cameraState !== "live" || isCapturing) return;
-
-    setIsCapturing(true);
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      setIsCapturing(false);
+    setLookupBusy(false);
+    if (response.status === 401) {
+      router.push("/signup");
       return;
     }
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
-    try {
-      await goToResults(dataUrl);
-    } catch {
-      setIsCapturing(false);
+    if (response.status === 402) {
+      router.push("/subscriptions");
+      return;
     }
-  }, [cameraState, goToResults, isCapturing]);
-
-  const onFileChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      setIsCapturing(true);
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result !== "string") {
-          setIsCapturing(false);
-          return;
-        }
-        void goToResults(reader.result).catch(() => setIsCapturing(false));
-      };
-      reader.onerror = () => setIsCapturing(false);
-      reader.readAsDataURL(file);
-    },
-    [goToResults],
-  );
+    if (!response.ok || !json.result) {
+      setLookupError(json.error || "Lookup failed.");
+      return;
+    }
+    sessionStorage.removeItem(SCAN_STORAGE_KEY);
+    sessionStorage.setItem(SCAN_RESULT_KEY, JSON.stringify(json.result));
+    router.push("/results?from=lookup");
+  }
 
   const limitLabel = !me.authenticated
-    ? "Sign in to start scanning"
+    ? "Sign in to use the scanner"
     : me.limit == null
-      ? `${me.used ?? 0} scans this month · Unlimited`
-      : `${me.used ?? 0} / ${me.limit} scans this month`;
+      ? `${me.used ?? 0} checks this month · Unlimited`
+      : `${me.used ?? 0} / ${me.limit} checks this month`;
 
   return (
     <div className={styles.shell}>
       <header className={styles.topBar}>
         <div>
           <p className={styles.brand}>Resellr</p>
-          <p className={styles.tagline}>Scan. Price. List or auction.</p>
+          <p className={styles.tagline}>Scanner for thrift finds</p>
         </div>
         <div className={styles.topLinks}>
-          <HeaderNav />
+          <HeaderNav active="scanner" />
         </div>
       </header>
 
       {!me.authenticated && (
         <div className={styles.authBanner}>
-          <p>Create a free Basic account to scan (~7 / month).</p>
+          <p>Create a free Basic account to scan &amp; look up items.</p>
           <Link href="/signup">Sign up</Link>
         </div>
       )}
 
       <main className={styles.stage}>
-        <div className={styles.viewfinder}>
-          <video
-            ref={videoRef}
-            className={styles.video}
-            playsInline
-            muted
-            autoPlay
-          />
-          <div className={styles.frame} aria-hidden />
-
-          {cameraState !== "live" && (
-            <div className={styles.fallback}>
-              {cameraState === "starting" && <p>Starting camera…</p>}
-              {cameraState === "blocked" && (
-                <>
-                  <p>Camera access blocked.</p>
-                  <p className={styles.fallbackHint}>
-                    Upload a photo from your library instead.
-                  </p>
-                </>
-              )}
-              {cameraState === "unsupported" && (
-                <>
-                  <p>Camera not available here.</p>
-                  <p className={styles.fallbackHint}>
-                    Upload a photo to continue.
-                  </p>
-                </>
-              )}
-              {cameraState === "idle" && <p>Ready when you are.</p>}
-            </div>
-          )}
+        <div className={styles.modeToggle} role="tablist" aria-label="Scanner mode">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "camera"}
+            className={mode === "camera" ? styles.modeActive : undefined}
+            onClick={() => setMode("camera")}
+          >
+            Camera scan
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "lookup"}
+            className={mode === "lookup" ? styles.modeActive : undefined}
+            onClick={() => setMode("lookup")}
+          >
+            Manual lookup
+          </button>
         </div>
 
-        <p className={styles.hint}>
-          Point at the item. We&apos;ll ID it, show market prices, and you can
-          start a live auction on Resellr.
-        </p>
         <p className={styles.usage}>{limitLabel}</p>
 
-        <div className={styles.controls}>
-          <button
-            type="button"
-            className={styles.uploadBtn}
-            onClick={() => {
-              if (!me.authenticated) {
-                router.push("/signup");
-                return;
-              }
-              fileInputRef.current?.click();
-            }}
-            disabled={isCapturing}
-          >
-            Upload
-          </button>
-
-          <button
-            type="button"
-            className={styles.shutter}
-            aria-label="Take photo"
-            onClick={() => void capturePhoto()}
-            disabled={cameraState !== "live" || isCapturing}
-          >
-            <span className={styles.shutterInner} />
-          </button>
-
-          <div className={styles.controlSpacer} aria-hidden />
-        </div>
+        {mode === "camera" ? (
+          <ItemScanner
+            onPhoto={onPhoto}
+            hint="At a thrift store? Snap an item to check the market — no need to list it."
+          />
+        ) : (
+          <form className={styles.lookupForm} onSubmit={(e) => void onLookup(e)}>
+            <label>
+              Item name or keywords
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="e.g. Nike Dunk Low size 10"
+                required
+                minLength={2}
+              />
+            </label>
+            <p className={styles.hint}>
+              Type what you see on the tag or box. We&apos;ll pull comps without a
+              photo.
+            </p>
+            <button type="submit" className={styles.lookupBtn} disabled={lookupBusy}>
+              {lookupBusy ? "Looking up…" : "Check market"}
+            </button>
+            {lookupError && <p className={styles.lookupError}>{lookupError}</p>}
+          </form>
+        )}
       </main>
-
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className={styles.hiddenInput}
-        onChange={onFileChange}
-      />
-      <canvas ref={canvasRef} className={styles.hiddenInput} />
-
-      {isCapturing && (
-        <div className={styles.capturingOverlay} role="status">
-          <div className={styles.spinner} />
-          <p>Opening results…</p>
-        </div>
-      )}
     </div>
   );
 }

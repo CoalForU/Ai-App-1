@@ -9,6 +9,16 @@ import {
 } from "./db";
 import { minNextBid, type Auction, type Bid } from "./types";
 
+/** Fill live-camera fields for auctions created before broadcasting existed. */
+export function normalizeAuction(auction: Auction): Auction {
+  return {
+    ...auction,
+    liveFrameDataUrl: auction.liveFrameDataUrl ?? null,
+    lastFrameAt: auction.lastFrameAt ?? null,
+    broadcasting: auction.broadcasting ?? false,
+  };
+}
+
 export async function createAuction(input: {
   sellerId: string;
   sellerName: string;
@@ -32,6 +42,9 @@ export async function createAuction(input: {
     category: input.category.trim(),
     condition: input.condition.trim(),
     photoDataUrl: input.photoDataUrl,
+    liveFrameDataUrl: null,
+    lastFrameAt: null,
+    broadcasting: false,
     startingBid: input.startingBid,
     reservePrice: input.reservePrice ?? null,
     currentBid: 0,
@@ -48,11 +61,51 @@ export async function createAuction(input: {
   return auction;
 }
 
+/** Seller pushes a live camera frame while hosting. */
+export async function pushAuctionFrame(input: {
+  auctionId: string;
+  sellerId: string;
+  frameDataUrl: string;
+}) {
+  await syncAuctionStatuses();
+  const auction = await findAuctionById(input.auctionId);
+  if (!auction) throw new Error("Auction not found.");
+  if (auction.sellerId !== input.sellerId) {
+    throw new Error("Only the seller can broadcast this auction.");
+  }
+  if (auction.status !== "live") throw new Error("This auction has ended.");
+  if (!input.frameDataUrl.startsWith("data:image")) {
+    throw new Error("Invalid camera frame.");
+  }
+
+  auction.liveFrameDataUrl = input.frameDataUrl;
+  auction.lastFrameAt = new Date().toISOString();
+  auction.broadcasting = true;
+  await upsertAuction(auction);
+  return auction;
+}
+
+export async function stopAuctionBroadcast(input: {
+  auctionId: string;
+  sellerId: string;
+}) {
+  const auction = await findAuctionById(input.auctionId);
+  if (!auction) throw new Error("Auction not found.");
+  if (auction.sellerId !== input.sellerId) {
+    throw new Error("Only the seller can stop the broadcast.");
+  }
+  auction.broadcasting = false;
+  await upsertAuction(auction);
+  return auction;
+}
+
 export async function getLiveAuctions() {
   const auctions = await syncAuctionStatuses();
-  return auctions.sort(
-    (a, b) => new Date(a.endsAt).getTime() - new Date(b.endsAt).getTime(),
-  );
+  return auctions
+    .map(normalizeAuction)
+    .sort(
+      (a, b) => new Date(a.endsAt).getTime() - new Date(b.endsAt).getTime(),
+    );
 }
 
 export async function getAuctionDetail(id: string) {
@@ -60,7 +113,7 @@ export async function getAuctionDetail(id: string) {
   const auction = await findAuctionById(id);
   if (!auction) return null;
   const bids = await listBids(id);
-  return { auction, bids };
+  return { auction: normalizeAuction(auction), bids };
 }
 
 export async function placeBid(input: {
@@ -70,9 +123,13 @@ export async function placeBid(input: {
   amount: number;
 }) {
   await syncAuctionStatuses();
-  const auction = await findAuctionById(input.auctionId);
-  if (!auction) throw new Error("Auction not found.");
+  const found = await findAuctionById(input.auctionId);
+  if (!found) throw new Error("Auction not found.");
+  const auction = normalizeAuction(found);
   if (auction.status !== "live") throw new Error("This auction has ended.");
+  if (!auction.broadcasting) {
+    throw new Error("Wait for the seller to go live on camera before bidding.");
+  }
   if (auction.sellerId === input.bidderId) {
     throw new Error("You can't bid on your own auction.");
   }

@@ -2,12 +2,12 @@
 
 **Domain:** [resellr.live](https://resellr.live)
 
-Scan thrift finds, check market pricing + sell-through, then **list** or run a **live auction** inside Resellr.
+Scanner for thrift finds, community **posts**, and **live-on-camera** auctions.
 
 ## Pricing
 
-| Plan | Monthly | 6 months | Scans | Listings | Auctions |
-|------|---------|----------|-------|----------|----------|
+| Plan | Monthly | 6 months | Scans | Posts | Live auctions |
+|------|---------|----------|-------|-------|---------------|
 | Basic | Free | — | ~7 / mo | 5 / mo | 3 / mo |
 | Pro | $15 / month | $84.99 (save $5+) | ~25 / mo | 15 / mo | 10 / mo |
 | Ultimate | $35 / month | $189.99 (save $20+) | Unlimited | Unlimited | Unlimited |
@@ -26,14 +26,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## What's built
 
-- Scan → Results (comps + sell-through)
-- Fixed-price listings (create, browse, buy now)
-- Live auctions (create, browse, bid with live polling)
-- Plan limits on scans, listings, and auctions
-- Light / dark mode (user toggle)
-- Auth + monthly scan limits
-- Subscriptions with demo upgrades (Stripe when configured)
-- Settings menu for appearance (light/dark), account, and logout
-- Ultimate photo cleanup
+- **Scanner** — camera scan + manual lookup for market checks
+- **Posts** — fixed-price feed with Post button (scanner in post flow)
+- **Live on camera** — seller broadcasts frames; bidding opens while live
+- Plan limits on scans, posts, and auctions
+- Light / dark mode, auth, subscriptions, Ultimate photo cleanup
 
 See `SPEC.md` and `DATA_SOURCES.md`.

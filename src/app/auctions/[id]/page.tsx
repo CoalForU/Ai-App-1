@@ -37,6 +37,15 @@ export default function AuctionDetailPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [tick, setTick] = useState(0);
+  const [meId, setMeId] = useState<string | null>(null);
+
+  useEffect(() => {
+    void fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((json: { user: null | { id: string } }) => {
+        setMeId(json.user?.id ?? null);
+      });
+  }, []);
 
   useEffect(() => {
     const t = window.setInterval(() => setTick((n) => n + 1), 1000);
@@ -65,7 +74,7 @@ export default function AuctionDetailPage() {
     }
 
     void load();
-    const poll = window.setInterval(() => void load(), 2500);
+    const poll = window.setInterval(() => void load(), 1200);
     return () => {
       cancelled = true;
       window.clearInterval(poll);
@@ -139,11 +148,22 @@ export default function AuctionDetailPage() {
       <main className={styles.main}>
         <div className={styles.hero}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={auction.photoDataUrl} alt={auction.title} />
+          <img
+            src={
+              auction.broadcasting && auction.liveFrameDataUrl
+                ? auction.liveFrameDataUrl
+                : auction.photoDataUrl
+            }
+            alt={auction.title}
+          />
           <div className={styles.heroCopy}>
             <div className={styles.badges}>
               <span className={auction.status === "live" ? styles.live : styles.ended}>
-                {auction.status === "live" ? "LIVE" : "ENDED"}
+                {auction.status === "live"
+                  ? auction.broadcasting
+                    ? "ON CAMERA"
+                    : "WAITING"
+                  : "ENDED"}
               </span>
               <span className={styles.muted}>{formatTimeLeft(auction.endsAt)}</span>
             </div>
@@ -152,6 +172,11 @@ export default function AuctionDetailPage() {
               {auction.category} · {auction.condition}
             </p>
             <p className={styles.seller}>Seller: {auction.sellerName}</p>
+            {!auction.broadcasting && auction.status === "live" && (
+              <p className={styles.result}>
+                Seller must go live on camera before bidding opens.
+              </p>
+            )}
             <p className={styles.bidLabel}>
               {auction.currentBid > 0 ? "Current bid" : "Starting bid"}
             </p>
@@ -173,6 +198,11 @@ export default function AuctionDetailPage() {
                   : "Ended with no winning bid"}
               </p>
             )}
+            {meId === auction.sellerId && auction.status === "live" && (
+              <Link href={`/auctions/${auction.id}/host`} className={styles.hostLink}>
+                {auction.broadcasting ? "Return to host camera →" : "Go live on camera →"}
+              </Link>
+            )}
           </div>
         </div>
 
@@ -187,10 +217,15 @@ export default function AuctionDetailPage() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
+                disabled={!auction.broadcasting}
               />
             </label>
-            <button type="submit" disabled={busy}>
-              {busy ? "Placing…" : "Place bid"}
+            <button type="submit" disabled={busy || !auction.broadcasting}>
+              {busy
+                ? "Placing…"
+                : !auction.broadcasting
+                  ? "Waiting for live camera"
+                  : "Place bid"}
             </button>
             {error && <p className={styles.error}>{error}</p>}
             {message && <p className={styles.ok}>{message}</p>}

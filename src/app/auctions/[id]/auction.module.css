@@ -2,7 +2,7 @@
   min-height: 100dvh;
   max-width: 920px;
   margin-inline: auto;
-  padding: 1.1rem 1.1rem 2.5rem;
+  padding: 1.1rem 1.1rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
   animation: fade-up 420ms ease-out;
 }
 
@@ -96,6 +96,12 @@
   font-weight: 650;
   color: var(--accent);
   letter-spacing: -0.04em;
+}
+
+.hostLink {
+  margin-top: 0.55rem;
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .result {

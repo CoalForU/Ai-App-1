@@ -28,6 +28,16 @@ function readStoredPhoto() {
   return sessionStorage.getItem(SCAN_STORAGE_KEY);
 }
 
+function readStoredResult() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(SCAN_RESULT_KEY);
+    return raw ? (JSON.parse(raw) as ScanResult) : null;
+  } catch {
+    return null;
+  }
+}
+
 function PriceHistoryGraph({
   points,
   windowDays,
@@ -140,19 +150,36 @@ export default function ResultsPage() {
   }, []);
 
   useEffect(() => {
-    if (!photo) {
-      router.replace("/");
-      return;
-    }
-
     let cancelled = false;
 
-    async function identify() {
+    async function load() {
+      const cached = readStoredResult();
+      const storedPhoto = readStoredPhoto();
+
+      // Manual lookup already stored a result — no photo required.
+      if (cached && !storedPhoto) {
+        if (!cancelled) {
+          setPhoto(null);
+          setResult(cached);
+          setStartingBid(String(cached.listAt));
+          setListPrice(String(cached.listAt));
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (!storedPhoto) {
+        router.replace("/");
+        return;
+      }
+
+      if (!cancelled) setPhoto(storedPhoto);
+
       try {
         const response = await fetch("/api/identify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageDataUrl: photo }),
+          body: JSON.stringify({ imageDataUrl: storedPhoto }),
         });
         const data = (await response.json()) as {
           result?: ScanResult;
@@ -189,19 +216,11 @@ export default function ResultsPage() {
       }
     }
 
-    void identify();
+    void load();
     return () => {
       cancelled = true;
     };
-    // Identify once per results visit — photo cleanup must not re-scan.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
-
-  useEffect(() => {
-    if (!photo) {
-      router.replace("/");
-    }
-  }, [photo, router]);
 
   const sellThrough = useMemo(() => {
     if (!result) return null;
@@ -249,7 +268,7 @@ export default function ResultsPage() {
       setAuctionError(json.error || "Could not start auction.");
       return;
     }
-    router.push(`/auctions/${json.auction.id}`);
+    router.push(`/auctions/${json.auction.id}/host`);
   }
 
   async function createListing() {
@@ -300,10 +319,10 @@ export default function ResultsPage() {
     }`;
   }
 
-  if (!photo) {
+  if (loading && !result && !error) {
     return (
       <div className={styles.shell}>
-        <p className={styles.loadingCopy}>Loading scan…</p>
+        <p className={styles.loadingCopy}>Loading market data…</p>
       </div>
     );
   }
@@ -312,20 +331,22 @@ export default function ResultsPage() {
     <div className={styles.shell}>
       <header className={styles.topBar}>
         <Link href="/" className={styles.backLink}>
-          ← New scan
+          ← Scanner
         </Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
-          <HeaderNav />
+          <HeaderNav active="scanner" />
         </div>
       </header>
 
       {loading && (
         <section className={styles.loadingPanel} role="status">
-          <div className={styles.photoWrap}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={photo} alt="Scanned item" className={styles.photo} />
-          </div>
+          {photo && (
+            <div className={styles.photoWrap}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo} alt="Scanned item" className={styles.photo} />
+            </div>
+          )}
           <div className={styles.spinner} />
           <p className={styles.loadingCopy}>
             Identifying item and pulling market data…
@@ -350,10 +371,19 @@ export default function ResultsPage() {
       {!loading && result && sellThrough && (
         <main className={styles.content}>
           <section className={styles.hero}>
-            <div className={styles.photoWrap}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo} alt={result.name} className={styles.photo} />
-            </div>
+            {photo ? (
+              <div className={styles.photoWrap}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photo} alt={result.name} className={styles.photo} />
+              </div>
+            ) : (
+              <div className={styles.photoWrap}>
+                <div className={styles.lookupPlaceholder}>
+                  <p>Manual lookup</p>
+                  <p className={styles.sectionSupport}>No photo — market check only</p>
+                </div>
+              </div>
+            )}
             <div className={styles.heroCopy}>
               <p className={styles.meta}>
                 {result.brand} · {result.category}
@@ -470,127 +500,147 @@ export default function ResultsPage() {
             </div>
           </section>
 
-          <BackgroundCleanup
-            photo={photo}
-            plan={plan}
-            onPhotoChange={setPhoto}
-          />
+          {photo ? (
+            <BackgroundCleanup
+              photo={photo}
+              plan={plan}
+              onPhotoChange={setPhoto}
+            />
+          ) : null}
 
-          <section className={styles.section}>
-            <h2>List for sale</h2>
-            <p className={styles.sectionSupport}>
-              Post a fixed price on Resellr. Buyers can buy now — no bidding.
-            </p>
-            {sellUsage && (
+          {!photo && (
+            <section className={styles.section}>
+              <h2>Want to sell it?</h2>
               <p className={styles.sectionSupport}>
-                Listings:{" "}
-                {usageLabel(
-                  sellUsage.listings.used,
-                  sellUsage.listings.limit,
-                  sellUsage.listings.remaining,
-                )}
+                This was a market check. To post or go live, open Posts and scan
+                the item with your camera.
               </p>
-            )}
-            <div className={styles.auctionForm}>
-              <label>
-                List price ($)
-                <input
-                  type="number"
-                  min={1}
-                  value={listPrice}
-                  onChange={(e) => setListPrice(e.target.value)}
-                />
-              </label>
-            </div>
-            <button
-              type="button"
-              className={styles.primaryBtn}
-              onClick={() => void createListing()}
-              disabled={
-                listingBusy ||
-                (sellUsage?.listings.remaining === 0 &&
-                  sellUsage.listings.limit != null)
-              }
-            >
-              {listingBusy ? "Listing…" : "Create listing"}
-            </button>
-            {listingError && (
-              <p className={styles.auctionError}>
-                {listingError}{" "}
-                <Link href="/subscriptions">View subscriptions</Link>
-              </p>
-            )}
-          </section>
+              <Link href="/listings/new" className={styles.primaryBtn}>
+                Create a post
+              </Link>
+            </section>
+          )}
 
-          <section className={styles.section}>
-            <h2>Start a live auction</h2>
-            <p className={styles.sectionSupport}>
-              Or let buyers compete with live bids. Limits depend on your plan.
-            </p>
-            {sellUsage && (
-              <p className={styles.sectionSupport}>
-                Auctions:{" "}
-                {usageLabel(
-                  sellUsage.auctions.used,
-                  sellUsage.auctions.limit,
-                  sellUsage.auctions.remaining,
+          {photo && (
+            <>
+              <section className={styles.section}>
+                <h2>Post it</h2>
+                <p className={styles.sectionSupport}>
+                  Fixed-price post on Resellr. Buyers can buy now.
+                </p>
+                {sellUsage && (
+                  <p className={styles.sectionSupport}>
+                    Posts:{" "}
+                    {usageLabel(
+                      sellUsage.listings.used,
+                      sellUsage.listings.limit,
+                      sellUsage.listings.remaining,
+                    )}
+                  </p>
                 )}
-              </p>
-            )}
-            <div className={styles.auctionForm}>
-              <label>
-                Starting bid ($)
-                <input
-                  type="number"
-                  min={1}
-                  value={startingBid}
-                  onChange={(e) => setStartingBid(e.target.value)}
-                />
-              </label>
-              <label>
-                Reserve (optional)
-                <input
-                  type="number"
-                  min={0}
-                  value={reservePrice}
-                  onChange={(e) => setReservePrice(e.target.value)}
-                  placeholder="No reserve"
-                />
-              </label>
-              <label>
-                Length
-                <select
-                  value={durationHours}
-                  onChange={(e) => setDurationHours(e.target.value)}
+                <div className={styles.auctionForm}>
+                  <label>
+                    Price ($)
+                    <input
+                      type="number"
+                      min={1}
+                      value={listPrice}
+                      onChange={(e) => setListPrice(e.target.value)}
+                    />
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  className={styles.primaryBtn}
+                  onClick={() => void createListing()}
+                  disabled={
+                    listingBusy ||
+                    (sellUsage?.listings.remaining === 0 &&
+                      sellUsage.listings.limit != null)
+                  }
                 >
-                  <option value="1">1 hour</option>
-                  <option value="6">6 hours</option>
-                  <option value="12">12 hours</option>
-                  <option value="24">24 hours</option>
-                  <option value="48">48 hours</option>
-                  <option value="72">72 hours</option>
-                </select>
-              </label>
-            </div>
-            <button
-              type="button"
-              className={styles.primaryBtn}
-              onClick={() => void startAuction()}
-              disabled={
-                auctionBusy ||
-                (sellUsage?.auctions.remaining === 0 &&
-                  sellUsage.auctions.limit != null)
-              }
-            >
-              {auctionBusy ? "Starting auction…" : "Start live auction"}
-            </button>
-            {auctionError && (
-              <p className={styles.auctionError}>
-                {auctionError}{" "}
-                <Link href="/subscriptions">View subscriptions</Link>
-              </p>
-            )}
-          </section>
+                  {listingBusy ? "Posting…" : "Post listing"}
+                </button>
+                {listingError && (
+                  <p className={styles.auctionError}>
+                    {listingError}{" "}
+                    <Link href="/subscriptions">View subscriptions</Link>
+                  </p>
+                )}
+              </section>
+
+              <section className={styles.section}>
+                <h2>Go live on camera</h2>
+                <p className={styles.sectionSupport}>
+                  Live auctions require your camera on. You&apos;ll host the
+                  stream, then buyers can bid.
+                </p>
+                {sellUsage && (
+                  <p className={styles.sectionSupport}>
+                    Live auctions:{" "}
+                    {usageLabel(
+                      sellUsage.auctions.used,
+                      sellUsage.auctions.limit,
+                      sellUsage.auctions.remaining,
+                    )}
+                  </p>
+                )}
+                <div className={styles.auctionForm}>
+                  <label>
+                    Starting bid ($)
+                    <input
+                      type="number"
+                      min={1}
+                      value={startingBid}
+                      onChange={(e) => setStartingBid(e.target.value)}
+                    />
+                  </label>
+                  <label>
+                    Reserve (optional)
+                    <input
+                      type="number"
+                      min={0}
+                      value={reservePrice}
+                      onChange={(e) => setReservePrice(e.target.value)}
+                      placeholder="No reserve"
+                    />
+                  </label>
+                  <label>
+                    Length
+                    <select
+                      value={durationHours}
+                      onChange={(e) => setDurationHours(e.target.value)}
+                    >
+                      <option value="1">1 hour</option>
+                      <option value="6">6 hours</option>
+                      <option value="12">12 hours</option>
+                      <option value="24">24 hours</option>
+                      <option value="48">48 hours</option>
+                      <option value="72">72 hours</option>
+                    </select>
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  className={styles.primaryBtn}
+                  onClick={() => void startAuction()}
+                  disabled={
+                    auctionBusy ||
+                    (sellUsage?.auctions.remaining === 0 &&
+                      sellUsage.auctions.limit != null)
+                  }
+                >
+                  {auctionBusy ? "Starting…" : "Start & go live"}
+                </button>
+                {auctionError && (
+                  <p className={styles.auctionError}>
+                    {auctionError}{" "}
+                    <Link href="/subscriptions">View subscriptions</Link>
+                  </p>
+                )}
+              </section>
+            </>
+          )}
         </main>
       )}
     </div>

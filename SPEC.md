@@ -2,53 +2,58 @@
 
 ## What we're building
 
-A reseller app on **resellr.live**. The user photographs an item, AI identifies it, the app shows market pricing and sell-through, then the user can **list it at a fixed price** or run a **live auction inside Resellr** — not post to other apps/sites.
+A reseller app on **resellr.live**. Three pillars:
+
+1. **Scanner** — check market prices at a thrift store (camera or manual lookup)
+2. **Posts** — fixed-price community listings with a Post button (scanner in the post flow)
+3. **Live on camera** — auctions require the seller’s camera broadcasting
 
 **Repo:** github.com/CoalForU/Ai-App-1  
 **Domain:** resellr.live
 
 ---
 
-## Core loop
+## Core loops
 
-1. User opens the scan screen and takes a photo
-2. AI identifies the item
-3. App shows pricing comps + sell-through
-4. User chooses **list for sale** or **start a live auction**
-5. Buyers buy now or bid in real time on Resellr
+### Market check
+1. Open Scanner
+2. Camera scan **or** manual lookup
+3. See comps + sell-through (no requirement to sell)
+
+### Post
+1. Open Posts → **Post**
+2. Scanner captures the item
+3. Set price / details → publish fixed-price post
+
+### Live auction
+1. Scan an item → Start & go live
+2. Seller hosts with camera on (`/auctions/[id]/host`)
+3. Buyers watch live frames; bidding opens only while broadcasting
 
 ---
 
 ## Screens
 
-### Scan screen
-- Camera + upload
-- Navigate straight to Results after capture
+### Scanner (`/`)
+- Tabs: Camera scan | Manual lookup
+- Counts against monthly scan/check limit
 
-### Results page
-- Item ID, price range, history (30/60), sell-through
-- Ultimate photo cleanup
-- **Create listing** (fixed price)
-- **Start live auction** (starting bid, optional reserve, duration)
-- Shows remaining listing / auction allowance for the user’s plan
+### Results
+- Market data for the scan/lookup
+- Optional: Post listing or Go live on camera (photo required)
 
-### Listings
-- Browse active Buy Now listings
-- Listing detail with buy / end listing
+### Posts (`/listings`)
+- Feed of fixed-price posts
+- Floating **Post** button → `/listings/new` (includes scanner)
 
-### Live auctions
-- Browse live/ended auctions
-- Auction detail with live bid updates
-- Soft close: last-2-minute bids extend by 2 minutes
+### Live (`/auctions`)
+- Browse auctions (On camera / Waiting)
+- Detail shows latest live camera frame
+- Host page pushes frames every ~1.5s
 
 ### Subscriptions
 - Basic $0 / Pro $15/mo / Ultimate $35/mo
 - Optional 6-month billing: Pro $84.99 (save $5+) / Ultimate $189.99 (save $20+)
-
-### Settings
-- Preferences: light (white) / dark (black) appearance
-- Account / profile, subscriptions, support links
-- Log out
 
 ---
 
@@ -56,9 +61,9 @@ A reseller app on **resellr.live**. The user photographs an item, AI identifies 
 
 | Perk | Basic | Pro | Ultimate |
 |------|-------|-----|----------|
-| Scans / month | ~7 | ~25 | Unlimited |
+| Scans / lookups / month | ~7 | ~25 | Unlimited |
 | Sell-through | Yes | Yes | Yes |
-| Listings / month | 5 | 15 | Unlimited |
+| Posts / month | 5 | 15 | Unlimited |
 | Live auctions / month | 3 | 10 | Unlimited |
 | Priority support | No | Yes | Yes |
 | Background removal | No | No | Yes |

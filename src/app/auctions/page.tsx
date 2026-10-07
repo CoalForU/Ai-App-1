@@ -55,7 +55,7 @@ export default function AuctionsPage() {
   return (
     <div className={styles.shell}>
       <header className={styles.top}>
-        <Link href="/">← Scan</Link>
+        <Link href="/">← Scanner</Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
           <HeaderNav active="auctions" />
@@ -64,10 +64,10 @@ export default function AuctionsPage() {
 
       <main className={styles.main}>
         <div className={styles.intro}>
-          <h1>Live auctions</h1>
+          <h1>Auctions</h1>
           <p>
-            Bid in real time on Resellr. Scan an item, start an auction, and let
-            buyers compete here — no posting to other apps.
+            Live auctions on camera. Bidding opens once the host is
+            broadcasting — then buyers compete in real time.
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export default function AuctionsPage() {
           <section className={styles.empty}>
             <p>No live auctions yet.</p>
             <Link href="/" className={styles.cta}>
-              Scan an item to start one
+              Scan an item to go live
             </Link>
           </section>
         )}
@@ -89,6 +89,7 @@ export default function AuctionsPage() {
                 ? auction.currentBid
                 : auction.startingBid;
             const next = minNextBid(auction.currentBid, auction.startingBid);
+            const onCamera = Boolean(auction.broadcasting);
             return (
               <Link
                 key={auction.id}
@@ -96,15 +97,30 @@ export default function AuctionsPage() {
                 className={styles.card}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={auction.photoDataUrl} alt={auction.title} />
+                <img
+                  src={
+                    onCamera && auction.liveFrameDataUrl
+                      ? auction.liveFrameDataUrl
+                      : auction.photoDataUrl
+                  }
+                  alt={auction.title}
+                />
                 <div className={styles.cardBody}>
                   <div className={styles.row}>
                     <span
                       className={
-                        auction.status === "live" ? styles.live : styles.ended
+                        auction.status === "live"
+                          ? onCamera
+                            ? styles.live
+                            : styles.ended
+                          : styles.ended
                       }
                     >
-                      {auction.status === "live" ? "LIVE" : "ENDED"}
+                      {auction.status !== "live"
+                        ? "ENDED"
+                        : onCamera
+                          ? "ON CAMERA"
+                          : "WAITING"}
                     </span>
                     <span className={styles.muted}>
                       {timeLeft(auction.endsAt)}

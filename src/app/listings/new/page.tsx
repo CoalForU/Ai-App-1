@@ -91,9 +91,9 @@ export default function NewPostPage() {
   return (
     <div className={styles.shell}>
       <header className={styles.top}>
-        <Link href="/listings">← Posts</Link>
-        <p className={styles.brand}>New post</p>
-        <HeaderNav active="posts" />
+        <Link href="/listings">← Listings</Link>
+        <p className={styles.brand}>New listing</p>
+        <HeaderNav active="listings" />
       </header>
 
       <main className={styles.main}>

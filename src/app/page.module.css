@@ -2,7 +2,7 @@
   min-height: 100dvh;
   display: grid;
   grid-template-rows: auto 1fr;
-  padding: 1.1rem 1.1rem 1.6rem;
+  padding: 1.1rem 1.1rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
   gap: 1rem;
   animation: fade-up 420ms ease-out;
 }

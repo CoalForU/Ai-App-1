@@ -44,23 +44,23 @@ export default function PostsPage() {
         <Link href="/">← Scanner</Link>
         <p className={styles.brand}>Resellr</p>
         <div className={styles.topRight}>
-          <HeaderNav active="posts" />
+          <HeaderNav active="listings" />
         </div>
       </header>
 
       <main className={styles.main}>
         <div className={styles.intro}>
-          <h1>Posts</h1>
+          <h1>Listings</h1>
           <p>Fixed-price finds from the community. Tap Post to add yours.</p>
         </div>
 
-        {loading && <p className={styles.muted}>Loading posts…</p>}
+        {loading && <p className={styles.muted}>Loading listings…</p>}
 
         {!loading && listings.length === 0 && (
           <section className={styles.empty}>
-            <p>No posts yet.</p>
+            <p>No listings yet.</p>
             <Link href="/listings/new" className={styles.cta}>
-              Create the first post
+              Create the first listing
             </Link>
           </section>
         )}

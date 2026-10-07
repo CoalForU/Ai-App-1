@@ -1,0 +1,75 @@
+.dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+
+.bubble {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+}
+
+.slot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.divider {
+  width: 1px;
+  height: 1rem;
+  margin-inline: 0.2rem;
+  background: var(--line);
+}
+
+.link,
+.active {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.6rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.link {
+  color: var(--text-muted);
+}
+
+.link:hover {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+
+.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+@media (max-width: 420px) {
+  .link,
+  .active {
+    min-width: 0;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.82rem;
+  }
+}

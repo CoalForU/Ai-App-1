@@ -64,10 +64,10 @@ export default function AuctionsPage() {
 
       <main className={styles.main}>
         <div className={styles.intro}>
-          <h1>Live on camera</h1>
+          <h1>Auctions</h1>
           <p>
-            Sellers broadcast with their camera. Bidding opens once the host is
-            live — then buyers compete in real time.
+            Live auctions on camera. Bidding opens once the host is
+            broadcasting — then buyers compete in real time.
           </p>
         </div>
 

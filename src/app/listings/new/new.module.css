@@ -2,7 +2,7 @@
   min-height: 100dvh;
   max-width: 720px;
   margin-inline: auto;
-  padding: 1.1rem 1.1rem 2.5rem;
+  padding: 1.1rem 1.1rem calc(6.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 .top {

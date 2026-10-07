@@ -113,9 +113,9 @@ export default function ListingDetailPage() {
   return (
     <div className={styles.shell}>
       <header className={styles.top}>
-        <Link href="/listings">← Posts</Link>
+        <Link href="/listings">← Listings</Link>
         <p className={styles.brand}>Resellr</p>
-        <HeaderNav active="posts" />
+        <HeaderNav active="listings" />
       </header>
 
       <main className={styles.main}>
